@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leo Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <!-- Login Screen (Initially Hidden) -->
+    <div id="loginScreen" style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
+      <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+        <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Dashboard Login</h2>
+        <input type="text" id="username" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <button id="loginButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
+        <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+      </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" style="display: none;">
+      <header class="header">
+
+  <div class="brand">
+
+    <div class="brand-icon">
+      ₱
+    </div>
+
+    <div class="brand-text">
+
+      <h1>Leo</h1>
+
+      <span>
+        Deposit & Credit Monitoring
+      </span>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="page-title">
+
+  <h2>Savings</h2>
+
+  <p>
+    Monitor and manage savings deposits
+  </p>
+
+</div>
+
+
+<!-- ==================================================
+     SUMMARY
+================================================== -->
+
+<section class="summary-grid">
+
+
+<!-- TOTAL SAVINGS -->
+
+<div class="summary-card">
+
+  <div class="summary-icon">
+    ₱
+  </div>
+
+  <div class="summary-label">
+    Total Savings
+  </div>
+
+  <div
+    class="summary-value"
+    id="totalSavings">
+
+    ₱0.00
+
+  </div>
+
+</div>
+
+
+<!-- INTEREST EARNED -->
+
+<div class="summary-card">
+
+  <div class="summary-icon">
+    %
+  </div>
+
+  <div class="summary-label">
+    Interest Earned
+  </div>
+
+  <div
+    class="summary-value"
+    id="interestEarned">
+
+    ₱0.00
+
+  </div>
+
+</div>
+
+
+<!-- CASH ON HAND -->
+
+<div class="summary-card cash-card">
+
+  <div class="summary-icon">
+    💵
+  </div>
+
+  <div class="summary-label">
+    Cash on Hand
+  </div>
+
+  <div
+    class="summary-value"
+    id="cashOnHand">
+
+    ₱0.00
+
+  </div>
+
+  <div class="cash-description">
+    Savings less outstanding principal
+  </div>
+
+</div>
+
+
+<!-- EXPECTED PROFIT -->
+
+<div class="summary-card profit-card">
+
+  <div class="summary-icon profit-icon">
+    📈
+  </div>
+
+  <div class="summary-label">
+    Expected Profit (Outstanding Interest)
+  </div>
+
+  <div
+    class="summary-value"
+    id="expectedProfit">
+
+    ₱0.00
+
+  </div>
+
+</div>
+
+
+</section>
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<section class="dashboard-grid">
+
+
+<!-- ==================================================
+     SAVINGS
+================================================== -->
+
+<section class="content-card">
+
+
+<div class="content-header">
+
+  <div>
+
+    <div class="content-title">
+      Deposit Records
+    </div>
+
+    <div class="content-subtitle">
+      Savings transaction history
+    </div>
+
+  </div>
+
+
+  <button
+    class="btn btn-primary"
+    onclick="openDepositModal()">
+
+    + Add Deposit
+
+  </button>
+
+</div>
+
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+  <th>No.</th>
+
+  <th>Deposit Date</th>
+
+  <th>Depositor</th>
+
+  <th>Amount</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="savingsTable">
+
+<tr>
+
+<td colspan="4">
+
+<div class="loading">
+
+<div class="spinner"></div>
+
+Loading savings records...
+
+</div>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+</section>
+
+
+<!-- ==================================================
+     CREDIT
+================================================== -->
+
+<section class="content-card credit-panel">
+
+
+<div class="content-header">
+
+  <div>
+
+    <div class="content-title">
+      Outstanding Credit
+    </div>
+
+    <div class="content-subtitle">
+      Billed credits only
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CREDIT TOTAL -->
+
+<div class="credit-total">
+
+  <div class="credit-total-label">
+    Total Outstanding
+  </div>
+
+  <div
+    class="credit-total-value"
+    id="totalCredit">
+
+    ₱0.00
+
+  </div>
+
+</div>
+
+
+<!-- CREDIT BREAKDOWN -->
+
+<div class="credit-breakdown">
+
+
+<div class="breakdown-row">
+
+  <span>
+    Principal
+  </span>
+
+  <span
+    class="breakdown-value"
+    id="creditPrincipal">
+
+    ₱0.00
+
+  </span>
+
+</div>
+
+
+<div class="breakdown-row">
+
+  <span>
+    Expected Profit
+  </span>
+
+  <span
+    class="breakdown-value"
+    id="creditInterest">
+
+    ₱0.00
+
+  </span>
+
+</div>
+
+
+<div class="breakdown-row">
+
+  <span>
+    Late Penalty
+  </span>
+
+  <span
+    class="breakdown-value"
+    id="creditPenalty">
+
+    ₱0.00
+
+  </span>
+
+</div>
+
+
+</div>
+
+
+<!-- CREDIT LIST -->
+
+<div
+  class="credit-list"
+  id="creditList">
+
+<div class="loading">
+
+<div class="spinner"></div>
+
+Loading credit records...
+
+</div>
+
+</div>
+
+
+</section>
+
+
+</section>
+
+
+</main>
+
+
+<!-- ==================================================
+     DEPOSIT MODAL
+================================================== -->
+
+<div
+  class="modal-overlay"
+  id="depositModal">
+
+
+<div class="modal">
+
+
+<div class="modal-header">
+
+<h3>
+  Add Savings Deposit
+</h3>
+
+<button
+  class="close-btn"
+  onclick="closeDepositModal()">
+
+  ×
+
+</button>
+
+</div>
+
+
+<div class="modal-body">
+
+
+<div class="form-group">
+
+<label>
+  Depositor
+</label>
+
+<input
+  type="text"
+  id="depositor"
+  class="form-control"
+  placeholder="Enter depositor name">
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Amount
+</label>
+
+<input
+  type="number"
+  id="amount"
+  class="form-control"
+  placeholder="0.00"
+  min="0"
+  step="0.01">
+
+</div>
+
+
+</div>
+
+
+<div class="modal-footer">
+
+<button
+  class="btn btn-cancel"
+  onclick="closeDepositModal()">
+
+  Cancel
+
+</button>
+
+
+<button
+  class="btn btn-primary"
+  id="saveDepositButton"
+  onclick="saveDeposit()">
+
+  Save Deposit
+
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+    </div>
+    
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
