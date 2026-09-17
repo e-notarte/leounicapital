@@ -28,22 +28,38 @@ async function applyRoleUI() {
   currentRole = await getUserRole();
   const adminCashCard = document.getElementById('adminCashCard');
   const adminProfitCard = document.getElementById('adminProfitCard');
+  const creditLimitCard = document.getElementById('creditLimitCard');
   const adminCreditPanel = document.getElementById('adminCreditPanel');
   const addDepositBtn = document.getElementById('addDepositBtn');
   const addCreditBtn = document.getElementById('addCreditBtn');
+  const requestLoanBtn = document.getElementById('requestLoanBtn');
+  const adminCreditTotals = document.getElementById('adminCreditTotals');
+  const adminCreditBreakdown = document.getElementById('adminCreditBreakdown');
+  const creditPanelSubtitle = document.getElementById('creditPanelSubtitle');
+  
+  // Everyone sees the credit panel now, but with different content
+  if (adminCreditPanel) adminCreditPanel.style.display = 'block';
   
   if (currentRole === 'admin') {
     if (adminCashCard) adminCashCard.style.display = 'block';
     if (adminProfitCard) adminProfitCard.style.display = 'block';
-    if (adminCreditPanel) adminCreditPanel.style.display = 'block';
+    if (creditLimitCard) creditLimitCard.style.display = 'none'; // Hide for admin
     if (addDepositBtn) addDepositBtn.style.display = 'inline-block';
     if (addCreditBtn) addCreditBtn.style.display = 'inline-block';
+    if (requestLoanBtn) requestLoanBtn.style.display = 'none';
+    if (adminCreditTotals) adminCreditTotals.style.display = 'flex';
+    if (adminCreditBreakdown) adminCreditBreakdown.style.display = 'block';
+    if (creditPanelSubtitle) creditPanelSubtitle.textContent = 'Billed credits only';
   } else {
     if (adminCashCard) adminCashCard.style.display = 'none';
     if (adminProfitCard) adminProfitCard.style.display = 'none';
-    if (adminCreditPanel) adminCreditPanel.style.display = 'none';
+    if (creditLimitCard) creditLimitCard.style.display = 'flex'; // Show for user
     if (addDepositBtn) addDepositBtn.style.display = 'none';
     if (addCreditBtn) addCreditBtn.style.display = 'none';
+    if (requestLoanBtn) requestLoanBtn.style.display = 'inline-block';
+    if (adminCreditTotals) adminCreditTotals.style.display = 'none';
+    if (adminCreditBreakdown) adminCreditBreakdown.style.display = 'none';
+    if (creditPanelSubtitle) creditPanelSubtitle.textContent = 'Your credit history';
   }
 }
 
@@ -246,16 +262,18 @@ function calculateFinancialSummary(allSavingsData) {
    LOAD CREDIT
 ================================================== */
 async function loadCredit() {
-  if (currentRole !== 'admin') return; // Only admin loads credits for now
-
   const list = document.getElementById("creditList");
   list.innerHTML = `<div class="loading"><div class="spinner"></div>Loading credit records...</div>`;
 
   try {
-    const { data, error } = await supabase
-      .from('credits')
-      .select('*')
-      .order('created_at', { ascending: false });
+    let query = supabase.from('credits').select('*').order('created_at', { ascending: false });
+    
+    // If regular user, only fetch their own credits
+    if (currentRole !== 'admin') {
+      query = query.eq('borrower_name', loggedInUser.email);
+    }
+    
+    const { data, error } = await query;
       
     if (error) throw error;
     
@@ -281,13 +299,38 @@ function renderCredit(data) {
 
   data.forEach(function (credit) {
     const principal = Number(credit.amount) || 0;
-    const interest = Number(credit.expected_profit) || 0;
-    const penalty = Number(credit.late_penalty) || 0;
-    const total = principal + interest + penalty;
-    const lateDays = 0; // Would be calculated based on due_date vs now()
+    
+    // Auto-compute expected profit and late penalty dynamically
+    const createdDate = new Date(credit.created_at);
+    let dueDate = credit.due_date ? new Date(credit.due_date) : null;
+    let expectedProfit = 0;
+    let penalty = 0;
+    let lateDays = 0;
+    
+    if (dueDate) {
+      // 7% per month. Calculate months between created_at and due_date, rounded up.
+      const msPerMonth = 1000 * 60 * 60 * 24 * 30;
+      const durationMs = dueDate - createdDate;
+      const months = Math.max(1, Math.ceil(durationMs / msPerMonth)); // At least 1 month
+      expectedProfit = principal * 0.07 * months;
+      
+      // Calculate penalty: 0.5% per day if past due
+      const now = new Date();
+      if (now > dueDate && credit.status === 'Billed') {
+        lateDays = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+        if (lateDays > 0) {
+          penalty = principal * 0.005 * lateDays;
+        }
+      }
+    } else {
+      // Default to 1 month profit if no due date specified
+      expectedProfit = principal * 0.07;
+    }
+
+    const total = principal + expectedProfit + penalty;
 
     principalTotal += principal;
-    interestTotal += interest;
+    interestTotal += expectedProfit;
     penaltyTotal += penalty;
     outstandingTotal += total;
 
@@ -300,10 +343,11 @@ function renderCredit(data) {
       <div class="credit-status">${escapeHtml(credit.status || "Billed")}</div>
       <div class="credit-details">
         <div class="credit-detail">Principal: <strong>₱${formatMoney(principal)}</strong></div>
-        <div class="credit-detail">Expected Profit: <strong>₱${formatMoney(interest)}</strong></div>
-        <div class="credit-detail">Due: <strong>${formatDate(credit.due_date)}</strong></div>
+        <div class="credit-detail">Expected Profit: <strong>₱${formatMoney(expectedProfit)}</strong></div>
+        <div class="credit-detail">Due: <strong>${dueDate ? formatDate(credit.due_date) : 'N/A'}</strong></div>
         <div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>
       </div>
+      ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
     </div>`;
   });
 
@@ -345,8 +389,22 @@ window.closeCreditModal = function () {
   document.getElementById("creditModal").style.display = "none";
   document.getElementById("borrowerEmail").value = "";
   document.getElementById("creditAmount").value = "";
-  document.getElementById("creditProfit").value = "";
   document.getElementById("creditDueDate").value = "";
+}
+
+window.openRequestLoanModal = function () {
+  document.getElementById("requestLoanModal").style.display = "flex";
+  
+  // Set available limit text
+  const creditLimit = window.totalSavingsAmount * 0.5;
+  document.getElementById("availableCreditLimitDisplay").textContent = "₱" + formatMoney(creditLimit);
+  
+  document.getElementById("loanRequestAmount").focus();
+}
+
+window.closeRequestLoanModal = function () {
+  document.getElementById("requestLoanModal").style.display = "none";
+  document.getElementById("loanRequestAmount").value = "";
 }
 
 /* ==================================================
@@ -392,11 +450,11 @@ window.saveDeposit = async function () {
 window.saveCredit = async function () {
   const borrower = document.getElementById("borrowerEmail").value.trim();
   const amount = Number(document.getElementById("creditAmount").value);
-  const profit = Number(document.getElementById("creditProfit").value) || 0;
   const dueDate = document.getElementById("creditDueDate").value;
 
   if (!borrower) return alert("Please enter the borrower email.");
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
+  if (!dueDate) return alert("Please enter a due date.");
 
   const button = document.getElementById("saveCreditButton");
   button.disabled = true;
@@ -406,7 +464,6 @@ window.saveCredit = async function () {
     const insertData = { 
       borrower_name: borrower, 
       amount: amount,
-      expected_profit: profit,
       status: 'Billed',
       user_id: loggedInUser.id
     };
@@ -428,6 +485,47 @@ window.saveCredit = async function () {
   } finally {
     button.disabled = false;
     button.textContent = "Save Credit";
+  }
+}
+
+/* ==================================================
+   REQUEST LOAN (User)
+================================================== */
+window.requestLoan = async function () {
+  const amount = Number(document.getElementById("loanRequestAmount").value);
+  const creditLimit = window.totalSavingsAmount * 0.5;
+
+  if (!amount || amount <= 0) return alert("Please enter a valid amount.");
+  if (amount > creditLimit) {
+    return alert("Amount exceeds your available credit limit of ₱" + formatMoney(creditLimit) + ".");
+  }
+
+  const button = document.getElementById("requestLoanButton");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+
+  try {
+    const { data, error } = await supabase
+      .from('credits')
+      .insert([
+        { 
+          borrower_name: loggedInUser.email, 
+          amount: amount,
+          status: 'Requested',
+          user_id: loggedInUser.id
+        }
+      ]);
+
+    if (error) throw error;
+    
+    closeRequestLoanModal();
+    loadCredit(); // Refresh list to show "Requested"
+    alert("Loan request submitted successfully!");
+  } catch (error) {
+    alert(error.message || "Unable to request loan.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit Request";
   }
 }
 
