@@ -153,6 +153,7 @@ async function checkAuth() {
   
   if (session) {
     loggedInUser = session.user;
+    document.getElementById('userEmailDisplay').textContent = loggedInUser.email;
     showApp();
   } else {
     loggedInUser = null;
