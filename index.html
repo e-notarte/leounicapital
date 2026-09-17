@@ -8,13 +8,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body>
     <!-- Login Screen (Initially Hidden) -->
     <div id="loginScreen" style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
       <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
         <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Dashboard Login</h2>
-        <input type="text" id="username" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <input type="email" id="username" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <button id="loginButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
         <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
@@ -28,7 +29,7 @@
     <div id="registerScreen" style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
       <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
         <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
-        <input type="text" id="regUsername" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <input type="email" id="regUsername" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <button id="registerButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Register</button>
         <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
@@ -221,12 +222,12 @@
                 margin-bottom: 8px;
               "
             >
-              Depositor Name
+              Depositor Email
             </label>
             <input
-              type="text"
+              type="email"
               id="depositor"
-              placeholder="Enter name"
+              placeholder="e.g. emman@leouni.com"
               style="
                 width: 100%;
                 padding: 12px;
