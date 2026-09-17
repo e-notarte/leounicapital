@@ -1,23 +1,37 @@
+// Supabase Config
+const SUPABASE_URL = 'https://toumsirfqtvdzdrnhncw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdW1zaXJmcXR2ZHpkcm5obmN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NDQyMjksImV4cCI6MjEwNTIyMDIyOX0.7lcrL4AOVR4MeWJjybb-5wmzGoey3qHHfvc1_or9pG4';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+let loggedInUser = null;
+let currentRole = 'user';
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzC0IkHcg7Q7BzJ1dhd_VPkGGNeN1uJBDNLAYMUv8ODq-6iiz6B20HndoF034BGKF9eZw/exec';
-
-let authToken = localStorage.getItem('leo_auth_token');
-let loggedInUser = localStorage.getItem('leo_username');
-
-function getUserRole() {
+async function getUserRole() {
   if (!loggedInUser) return 'user';
-  return loggedInUser.toLowerCase() === 'admin' ? 'admin' : 'user';
+  
+  // Try to get role from user_roles table
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', loggedInUser.id)
+    .single();
+    
+  if (data && data.role) {
+    return data.role;
+  }
+  
+  // Fallback if not found (e.g. just registered)
+  return 'user';
 }
 
-function applyRoleUI() {
-  const role = getUserRole();
+async function applyRoleUI() {
+  currentRole = await getUserRole();
   const adminCashCard = document.getElementById('adminCashCard');
   const adminProfitCard = document.getElementById('adminProfitCard');
   const adminCreditPanel = document.getElementById('adminCreditPanel');
   const addDepositBtn = document.getElementById('addDepositBtn');
   
-  if (role === 'admin') {
+  if (currentRole === 'admin') {
     if (adminCashCard) adminCashCard.style.display = 'block';
     if (adminProfitCard) adminProfitCard.style.display = 'block';
     if (adminCreditPanel) adminCreditPanel.style.display = 'block';
@@ -35,63 +49,35 @@ window.totalSavingsAmount = 0;
 window.outstandingPrincipalAmount = 0;
 
 /* ==================================================
-   API WRAPPER
-================================================== */
-async function apiCall(action, payload = {}, method = 'GET') {
-  if (!API_URL || API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-    throw new Error('Please set the API_URL in main.js to your deployed Google Apps Script Web App URL.');
-  }
-
-  let url = `${API_URL}?action=${action}`;
-  let options = {
-    method: method
-  };
-
-  if (method === 'POST') {
-    options.body = JSON.stringify({ action, ...payload });
-    options.headers = {
-      'Content-Type': 'text/plain'
-    };
-  }
-
-  const response = await fetch(url, options);
-  const json = await response.json();
-  if (json.status === 'error') {
-    throw new Error(json.message);
-  }
-  return json.data;
-}
-
-/* ==================================================
    LOGIN LOGIC
 ================================================== */
 document.getElementById('loginButton').addEventListener('click', async () => {
-  const username = document.getElementById('username').value;
+  const email = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   const errorEl = document.getElementById('loginError');
   const btn = document.getElementById('loginButton');
 
   errorEl.textContent = '';
-  if (!username || !password) {
-    errorEl.textContent = 'Please enter username and password.';
+  if (!email || !password) {
+    errorEl.textContent = 'Please enter email and password.';
     return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Logging in...';
 
-  try {
-    const data = await apiCall('login', { username, password }, 'POST');
-    localStorage.setItem('leo_auth_token', data.token);
-    localStorage.setItem('leo_username', username);
-    authToken = data.token;
-    loggedInUser = username;
-    showApp();
-  } catch (error) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password,
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Login';
+
+  if (error) {
     errorEl.textContent = error.message;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Login';
+  } else {
+    checkAuth();
   }
 });
 
@@ -110,68 +96,78 @@ document.getElementById('showLoginLink').addEventListener('click', (e) => {
 
 // Register Logic
 document.getElementById('registerButton').addEventListener('click', async () => {
-  const username = document.getElementById('regUsername').value;
+  const email = document.getElementById('regUsername').value;
   const password = document.getElementById('regPassword').value;
   const msgEl = document.getElementById('registerMessage');
   const btn = document.getElementById('registerButton');
 
   msgEl.textContent = '';
   msgEl.style.color = 'red';
-  if (!username || !password) {
-    msgEl.textContent = 'Please enter username and password.';
+  if (!email || !password) {
+    msgEl.textContent = 'Please enter email and password.';
     return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Registering...';
 
-  try {
-    const data = await apiCall('register', { username, password }, 'POST');
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password,
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Register';
+
+  if (error) {
+    msgEl.textContent = error.message;
+  } else {
     msgEl.style.color = 'green';
     msgEl.textContent = 'Registration successful! You can now log in.';
     document.getElementById('regUsername').value = '';
     document.getElementById('regPassword').value = '';
-  } catch (error) {
-    msgEl.textContent = error.message;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Register';
   }
 });
 
-function checkAuth() {
-  if (authToken) {
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session) {
+    loggedInUser = session.user;
     showApp();
   } else {
+    loggedInUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
 }
 
-document.getElementById('logoutButton').addEventListener('click', () => {
-  localStorage.removeItem('leo_auth_token');
-  localStorage.removeItem('leo_username');
-  authToken = null;
-  loggedInUser = null;
+document.getElementById('logoutButton').addEventListener('click', async () => {
+  await supabase.auth.signOut();
   checkAuth();
 });
 
-function showApp() {
+async function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  applyRoleUI();
+  await applyRoleUI();
   loadSavings();
   loadCredit();
-  loadFinancialSummary();
 }
 
 /* ==================================================
-   LOAD SAVINGS
+   LOAD SAVINGS & SUMMARY
 ================================================== */
 async function loadSavings() {
   const table = document.getElementById("savingsTable");
   try {
-    const data = await apiCall('getSavings');
+    const { data, error } = await supabase
+      .from('savings')
+      .select('*')
+      .order('created_at', { ascending: true });
+      
+    if (error) throw error;
+    
     renderSavings(data);
   } catch (error) {
     table.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load records</h3><p>${escapeHtml(error.message)}</p></div></td></tr>`;
@@ -180,13 +176,11 @@ async function loadSavings() {
 
 function renderSavings(data) {
   const table = document.getElementById("savingsTable");
-  const role = getUserRole();
 
   let filteredData = data;
-  if (role !== 'admin' && Array.isArray(data)) {
+  if (currentRole !== 'admin' && Array.isArray(data)) {
     filteredData = data.filter(row => {
-      const depositor = row[2] || "";
-      return depositor.trim().toLowerCase() === loggedInUser.toLowerCase();
+      return row.depositor_name.toLowerCase() === loggedInUser.email.toLowerCase();
     });
   }
 
@@ -194,9 +188,10 @@ function renderSavings(data) {
     table.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💰</div><h3>No savings yet</h3><p>Add your first deposit to get started.</p></div></td></tr>`;
     window.totalSavingsAmount = 0;
     document.getElementById("creditLimit").textContent = "₱0.00";
-    if (role !== 'admin') {
+    if (currentRole !== 'admin') {
       document.getElementById("totalSavings").textContent = "₱0.00";
     }
+    calculateFinancialSummary(data);
     return;
   }
 
@@ -204,14 +199,14 @@ function renderSavings(data) {
   let total = 0;
 
   filteredData.forEach(function (row, index) {
-    const number = row[0] !== undefined && row[0] !== "" ? row[0] : index + 1;
-    const date = row[1] || "";
-    const depositor = row[2] || "";
-    const amount = Number(row[3]) || 0;
+    const number = index + 1;
+    const date = row.created_at;
+    const depositor = row.depositor_name;
+    const amount = Number(row.amount) || 0;
     total += amount;
 
     html += `<tr>
-      <td>${escapeHtml(number)}</td>
+      <td>${number}</td>
       <td>${formatDate(date)}</td>
       <td>${escapeHtml(depositor)}</td>
       <td class="amount">₱${formatMoney(amount)}</td>
@@ -224,27 +219,23 @@ function renderSavings(data) {
   const creditLimit = total * 0.5;
   document.getElementById("creditLimit").textContent = "₱" + formatMoney(creditLimit);
   
-  if (role !== 'admin') {
+  if (currentRole !== 'admin') {
     document.getElementById("totalSavings").textContent = "₱" + formatMoney(total);
   }
+  
+  calculateFinancialSummary(data);
 }
 
-/* ==================================================
-   LOAD FINANCIAL SUMMARY
-================================================== */
-async function loadFinancialSummary() {
-  try {
-    const summary = await apiCall('getFinancialSummary');
-    const role = getUserRole();
-    if (role === 'admin') {
-      document.getElementById("totalSavings").textContent = "₱" + formatMoney(summary.totalSavings);
+function calculateFinancialSummary(allSavingsData) {
+  if (currentRole === 'admin') {
+    let overallSavings = 0;
+    if (Array.isArray(allSavingsData)) {
+      overallSavings = allSavingsData.reduce((sum, row) => sum + Number(row.amount || 0), 0);
     }
-    document.getElementById("interestEarned").textContent = "₱" + formatMoney(summary.interestEarned);
-    document.getElementById("expectedProfit").textContent = "₱" + formatMoney(summary.outstandingInterest);
-    document.getElementById("cashOnHand").textContent = "₱" + formatMoney(summary.cashOnHand);
-    window.outstandingPrincipalAmount = Number(summary.outstandingPrincipal) || 0;
-  } catch (error) {
-    console.error(error);
+    document.getElementById("totalSavings").textContent = "₱" + formatMoney(overallSavings);
+    
+    // In a full implementation, we'd fetch all credits to calculate cash on hand and expected profit
+    // Since loadCredit is called alongside loadSavings, loadCredit handles the credit summary.
   }
 }
 
@@ -252,11 +243,19 @@ async function loadFinancialSummary() {
    LOAD CREDIT
 ================================================== */
 async function loadCredit() {
+  if (currentRole !== 'admin') return; // Only admin loads credits for now
+
   const list = document.getElementById("creditList");
   list.innerHTML = `<div class="loading"><div class="spinner"></div>Loading credit records...</div>`;
 
   try {
-    const data = await apiCall('getCredit');
+    const { data, error } = await supabase
+      .from('credits')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
+    
     renderCredit(data);
   } catch (error) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load credits</h3><p>${escapeHtml(error.message)}</p></div>`;
@@ -269,9 +268,8 @@ function renderCredit(data) {
   if (!Array.isArray(data) || data.length === 0) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No outstanding credit</h3><p>No billed credit transactions found.</p></div>`;
     document.getElementById("totalCredit").textContent = "₱0.00";
-    document.getElementById("creditPrincipal").textContent = "₱0.00";
-    document.getElementById("creditInterest").textContent = "₱0.00";
-    document.getElementById("creditPenalty").textContent = "₱0.00";
+    document.getElementById("expectedProfit").textContent = "₱0.00";
+    document.getElementById("cashOnHand").textContent = "₱0.00";
     return;
   }
 
@@ -280,10 +278,10 @@ function renderCredit(data) {
 
   data.forEach(function (credit) {
     const principal = Number(credit.amount) || 0;
-    const interest = Number(credit.expectedProfit) || 0;
-    const penalty = Number(credit.latePenalty) || 0;
-    const total = Number(credit.totalOutstanding) || 0;
-    const lateDays = Number(credit.lateDays) || 0;
+    const interest = Number(credit.expected_profit) || 0;
+    const penalty = Number(credit.late_penalty) || 0;
+    const total = principal + interest + penalty;
+    const lateDays = 0; // Would be calculated based on due_date vs now()
 
     principalTotal += principal;
     interestTotal += interest;
@@ -292,26 +290,33 @@ function renderCredit(data) {
 
     html += `<div class="credit-item">
       <div class="credit-item-top">
-        <div class="credit-name">${escapeHtml(credit.borrower || "")}</div>
+        <div class="credit-name">${escapeHtml(credit.borrower_name || "")}</div>
         <div class="credit-amount">₱${formatMoney(total)}</div>
       </div>
-      <div class="credit-date">Credit: ${formatDate(credit.creditDate)}</div>
+      <div class="credit-date">Credit: ${formatDate(credit.created_at)}</div>
       <div class="credit-status">${escapeHtml(credit.status || "Billed")}</div>
       <div class="credit-details">
         <div class="credit-detail">Principal: <strong>₱${formatMoney(principal)}</strong></div>
         <div class="credit-detail">Expected Profit: <strong>₱${formatMoney(interest)}</strong></div>
-        <div class="credit-detail">Due: <strong>${formatDate(credit.dueDate)}</strong></div>
+        <div class="credit-detail">Due: <strong>${formatDate(credit.due_date)}</strong></div>
         <div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>
       </div>
-      ${lateDays > 0 ? `<div class="credit-status overdue">${lateDays} day(s) overdue</div>` : ""}
     </div>`;
   });
 
   list.innerHTML = html;
-  document.getElementById("totalCredit").textContent = "₱" + formatMoney(outstandingTotal);
-  document.getElementById("creditPrincipal").textContent = "₱" + formatMoney(principalTotal);
-  document.getElementById("creditInterest").textContent = "₱" + formatMoney(interestTotal);
-  document.getElementById("creditPenalty").textContent = "₱" + formatMoney(penaltyTotal);
+  
+  // Calculate summary values for admin
+  if (currentRole === 'admin') {
+    document.getElementById("totalCredit").textContent = "₱" + formatMoney(outstandingTotal);
+    document.getElementById("expectedProfit").textContent = "₱" + formatMoney(interestTotal);
+    
+    // Cash on hand = overallSavings - principalTotal
+    const totalSavingsStr = document.getElementById("totalSavings").textContent.replace(/[^0-9.-]+/g,"");
+    const overallSavings = Number(totalSavingsStr) || 0;
+    const cashOnHand = overallSavings - principalTotal;
+    document.getElementById("cashOnHand").textContent = "₱" + formatMoney(cashOnHand);
+  }
 }
 
 /* ==================================================
@@ -335,7 +340,7 @@ window.saveDeposit = async function () {
   const depositor = document.getElementById("depositor").value.trim();
   const amount = Number(document.getElementById("amount").value);
 
-  if (!depositor) return alert("Please enter the depositor name.");
+  if (!depositor) return alert("Please enter the depositor email.");
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
 
   const button = document.getElementById("saveDepositButton");
@@ -343,7 +348,18 @@ window.saveDeposit = async function () {
   button.textContent = "Saving...";
 
   try {
-    await apiCall('addDeposit', { depositor, amount }, 'POST');
+    const { data, error } = await supabase
+      .from('savings')
+      .insert([
+        { 
+          depositor_name: depositor, 
+          amount: amount,
+          user_id: loggedInUser.id // Note: currently using admin's ID since admin adds it
+        }
+      ]);
+
+    if (error) throw error;
+    
     closeDepositModal();
     loadSavings(); // Refresh
   } catch (error) {
