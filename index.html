@@ -84,17 +84,13 @@
               <div class="cash-description">Savings less outstanding principal</div>
             </div>
 
-            <div class="summary-card" id="adminProfitCard">
-              <div class="summary-icon">📈</div>
-              <div class="summary-label">Expected Profit <span style="font-size:9px;font-weight:400">(Outstanding Interest)</span></div>
-              <div class="summary-value" id="expectedProfit">₱0.00</div>
-            </div>
-
             <div class="summary-card" id="creditLimitCard">
-              <div class="summary-icon">💳</div>
               <div class="summary-label">Credit Limit</div>
               <div class="summary-value" id="creditLimit">₱0.00</div>
-              <div class="cash-description" style="margin-top: 5px; font-size: 9px; color: #9a93a5;">50% of Total Savings</div>
+              <div class="summary-subtext">50% of Total Savings</div>
+              <div class="summary-icon" style="background: #eef2ff;">
+                <span style="color: #6366f1;">💳</span>
+              </div>
             </div>
           </div>
 
@@ -133,17 +129,20 @@
             <div class="content-header">
               <div>
                 <div class="content-title">Outstanding Credit</div>
-                <div class="content-subtitle">Billed credits only</div>
+                <div class="content-subtitle" id="creditPanelSubtitle">Billed credits only</div>
               </div>
-              <button class="btn btn-primary" id="addCreditBtn" onclick="openCreditModal()">+ Add Credit</button>
+              <div>
+                <button class="btn btn-primary" id="addCreditBtn" onclick="openCreditModal()">+ Add Credit</button>
+                <button class="btn btn-primary" id="requestLoanBtn" onclick="openRequestLoanModal()" style="display: none;">Request Loan</button>
+              </div>
             </div>
 
-            <div class="credit-total">
+            <div class="credit-total" id="adminCreditTotals">
               <div class="credit-total-label">Total Outstanding</div>
               <div class="credit-total-value" id="totalCredit">₱0.00</div>
             </div>
 
-            <div class="credit-breakdown">
+            <div class="credit-breakdown" id="adminCreditBreakdown">
               <div class="breakdown-row">
                 <span>Principal</span>
                 <span class="breakdown-value" id="creditPrincipal">₱0.00</span>
@@ -382,33 +381,6 @@
             >
           </div>
 
-          <div style="margin-bottom: 18px;">
-            <label
-              style="
-                display: block;
-                font-size: 11px;
-                font-weight: 500;
-                color: #777187;
-                margin-bottom: 8px;
-              "
-            >
-              Expected Profit (₱)
-            </label>
-            <input
-              type="number"
-              id="creditProfit"
-              placeholder="0.00"
-              style="
-                width: 100%;
-                padding: 12px;
-                border: 1px solid #e1dceb;
-                border-radius: 9px;
-                font-family: inherit;
-                font-size: 12px;
-              "
-            >
-          </div>
-
           <div style="margin-bottom: 24px;">
             <label
               style="
@@ -419,7 +391,7 @@
                 margin-bottom: 8px;
               "
             >
-              Due Date (Optional)
+              Due Date
             </label>
             <input
               type="date"
@@ -442,6 +414,95 @@
             onclick="saveCredit()"
           >
             Save Credit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST LOAN MODAL -->
+    <div
+      id="requestLoanModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      "
+    >
+      <div
+        style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        "
+      >
+        <div
+          style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div style="font-weight: 600; color: #5b478f;">Request Loan</div>
+          <button
+            onclick="closeRequestLoanModal()"
+            style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            "
+          >×</button>
+        </div>
+
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label
+              style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              "
+            >
+              Loan Amount (₱)
+            </label>
+            <input
+              type="number"
+              id="loanRequestAmount"
+              placeholder="0.00"
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              "
+            >
+            <div style="font-size: 11px; color: #777187; margin-top: 5px;">
+              Your available credit limit is: <strong id="availableCreditLimitDisplay">₱0.00</strong>
+            </div>
+          </div>
+
+          <button
+            id="requestLoanButton"
+            class="btn btn-primary"
+            style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="requestLoan()"
+          >
+            Submit Request
           </button>
         </div>
       </div>
