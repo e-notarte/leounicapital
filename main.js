@@ -76,6 +76,12 @@ function checkAuth() {
   }
 }
 
+document.getElementById('logoutButton').addEventListener('click', () => {
+  localStorage.removeItem('leo_auth_token');
+  authToken = null;
+  checkAuth();
+});
+
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
