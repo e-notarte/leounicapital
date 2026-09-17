@@ -43,6 +43,9 @@ body {
 
   align-items:
     center;
+    
+  justify-content:
+    space-between;
 
   padding:
     0 30px;
@@ -50,6 +53,13 @@ body {
   box-shadow:
     0 3px 12px
     rgba(67,52,105,0.18);
+    
+  position:
+    sticky;
+  top:
+    0;
+  z-index:
+    100;
 
 }
 
