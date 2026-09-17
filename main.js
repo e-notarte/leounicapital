@@ -356,7 +356,9 @@ function renderCredit(data) {
   // Calculate summary values for admin
   if (currentRole === 'admin') {
     document.getElementById("totalCredit").textContent = "₱" + formatMoney(outstandingTotal);
-    document.getElementById("expectedProfit").textContent = "₱" + formatMoney(interestTotal);
+    document.getElementById("creditPrincipal").textContent = "₱" + formatMoney(principalTotal);
+    document.getElementById("creditInterest").textContent = "₱" + formatMoney(interestTotal);
+    document.getElementById("creditPenalty").textContent = "₱" + formatMoney(penaltyTotal);
     
     // Cash on hand = overallSavings - principalTotal
     const totalSavingsStr = document.getElementById("totalSavings").textContent.replace(/[^0-9.-]+/g,"");
