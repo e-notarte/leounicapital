@@ -95,6 +95,50 @@ document.getElementById('loginButton').addEventListener('click', async () => {
   }
 });
 
+// Toggle between Login and Register
+document.getElementById('showRegisterLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('registerScreen').style.display = 'flex';
+});
+
+document.getElementById('showLoginLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('registerScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+});
+
+// Register Logic
+document.getElementById('registerButton').addEventListener('click', async () => {
+  const username = document.getElementById('regUsername').value;
+  const password = document.getElementById('regPassword').value;
+  const msgEl = document.getElementById('registerMessage');
+  const btn = document.getElementById('registerButton');
+
+  msgEl.textContent = '';
+  msgEl.style.color = 'red';
+  if (!username || !password) {
+    msgEl.textContent = 'Please enter username and password.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Registering...';
+
+  try {
+    const data = await apiCall('register', { username, password }, 'POST');
+    msgEl.style.color = 'green';
+    msgEl.textContent = 'Registration successful! You can now log in.';
+    document.getElementById('regUsername').value = '';
+    document.getElementById('regPassword').value = '';
+  } catch (error) {
+    msgEl.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Register';
+  }
+});
+
 function checkAuth() {
   if (authToken) {
     showApp();
