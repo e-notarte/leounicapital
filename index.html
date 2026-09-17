@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://pub-fe93926e9bd44e87a900e42cdb8f84e2.r2.dev/Leo%20Uni%20Capital%20Logo/Leo%20Logo.jpg" />
     <link rel="stylesheet" href="./style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -14,6 +15,9 @@
     <!-- Login Screen (Initially Hidden) -->
     <div id="loginScreen" style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
       <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://pub-fe93926e9bd44e87a900e42cdb8f84e2.r2.dev/Leo%20Uni%20Capital%20Logo/Leo%20Logo.jpg" alt="Leo Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+        </div>
         <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Dashboard Login</h2>
         <input type="email" id="username" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
@@ -28,6 +32,9 @@
     <!-- Register Screen (Initially Hidden) -->
     <div id="registerScreen" style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
       <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://pub-fe93926e9bd44e87a900e42cdb8f84e2.r2.dev/Leo%20Uni%20Capital%20Logo/Leo%20Logo.jpg" alt="Leo Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+        </div>
         <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
         <input type="email" id="regUsername" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
@@ -40,20 +47,26 @@
     </div>
 
     <!-- Main App -->
-    <div id="app" style="display: none;">
+    <div id="app" style="display: none; position: relative;">
       
-    <div class="header">
+      <!-- Watermark Background -->
+      <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('https://pub-fe93926e9bd44e87a900e42cdb8f84e2.r2.dev/Leo%20Uni%20Capital%20Logo/Leo%20Logo.jpg'); background-repeat: no-repeat; background-position: center; background-size: 40%; opacity: 0.04; pointer-events: none; z-index: 0;"></div>
+
+    <div class="header" style="position: relative; z-index: 10;">
       <div class="brand">
-        <div class="brand-icon">P</div>
+        <img src="https://pub-fe93926e9bd44e87a900e42cdb8f84e2.r2.dev/Leo%20Uni%20Capital%20Logo/Leo%20Logo.jpg" class="brand-icon" style="padding: 0; object-fit: cover;" alt="Logo" />
         <div class="brand-text">
           <h1>Leo</h1>
           <span>Deposit &amp; Credit Monitoring</span>
         </div>
       </div>
-      <button id="logoutButton" class="btn" style="background: rgba(255,255,255,0.15); color: white;">Log Out</button>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div id="userEmailDisplay" style="font-size: 13px; opacity: 0.9; font-weight: 500;"></div>
+        <button id="logoutButton" class="btn" style="background: rgba(255,255,255,0.15); color: white;">Log Out</button>
+      </div>
     </div>
 
-    <div class="container">
+    <div class="container" style="position: relative; z-index: 1;">
       <div class="dashboard-grid">
 
         <!-- LEFT COLUMN -->
