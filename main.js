@@ -1,4 +1,4 @@
-import './style.css';
+
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzC0IkHcg7Q7BzJ1dhd_VPkGGNeN1uJBDNLAYMUv8ODq-6iiz6B20HndoF034BGKF9eZw/exec';
 

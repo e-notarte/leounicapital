@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     <!-- Login Screen (Initially Hidden) -->
@@ -22,461 +23,236 @@
 
     <!-- Main App -->
     <div id="app" style="display: none;">
-      <header class="header">
-
-  <div class="brand">
-
-    <div class="brand-icon">
-      ₱
+      
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">P</div>
+        <div class="brand-text">
+          <h1>Leo</h1>
+          <span>Deposit &amp; Credit Monitoring</span>
+        </div>
+      </div>
     </div>
 
-    <div class="brand-text">
+    <div class="container">
+      <div class="dashboard-grid">
 
-      <h1>Leo</h1>
+        <!-- LEFT COLUMN -->
+        <div class="dashboard-main">
 
-      <span>
-        Deposit & Credit Monitoring
-      </span>
+          <div class="page-title">
+            <h2>Savings</h2>
+            <p>Monitor and manage savings deposits</p>
+          </div>
 
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="summary-icon">₱</div>
+              <div class="summary-label">Total Savings</div>
+              <div class="summary-value" id="totalSavings">₱0.00</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-icon">%</div>
+              <div class="summary-label">Interest Earned</div>
+              <div class="summary-value" id="interestEarned">₱0.00</div>
+            </div>
+
+            <div class="summary-card cash-card">
+              <div class="summary-icon">💵</div>
+              <div class="summary-label">Cash on Hand</div>
+              <div class="summary-value" id="cashOnHand">₱0.00</div>
+              <div class="cash-description">Savings less outstanding principal</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-icon">📈</div>
+              <div class="summary-label">Expected Profit <span style="font-size:9px;font-weight:400">(Outstanding Interest)</span></div>
+              <div class="summary-value" id="expectedProfit">₱0.00</div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="content-header">
+              <div>
+                <div class="content-title">Deposit Records</div>
+                <div class="content-subtitle">Savings transaction history</div>
+              </div>
+              <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Deposit Date</th>
+                    <th>Depositor</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="savingsTable">
+                  <!-- Load dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+        <div class="dashboard-side">
+          <div class="content-card credit-panel">
+            <div class="content-header">
+              <div class="content-title">Outstanding Credit</div>
+              <div class="content-subtitle">Billed credits only</div>
+            </div>
+
+            <div class="credit-total">
+              <div class="credit-total-label">Total Outstanding</div>
+              <div class="credit-total-value" id="totalCredit">₱0.00</div>
+            </div>
+
+            <div class="credit-breakdown">
+              <div class="breakdown-row">
+                <span>Principal</span>
+                <span class="breakdown-value" id="creditPrincipal">₱0.00</span>
+              </div>
+              <div class="breakdown-row">
+                <span>Expected Profit</span>
+                <span class="breakdown-value" id="creditInterest">₱0.00</span>
+              </div>
+              <div class="breakdown-row">
+                <span>Late Penalty</span>
+                <span class="breakdown-value" id="creditPenalty">₱0.00</span>
+              </div>
+            </div>
+
+            <div class="credit-list" id="creditList">
+              <!-- Load dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-  </div>
 
-</header>
+    <!-- DEPOSIT MODAL -->
+    <div
+      id="depositModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      "
+    >
+      <div
+        style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        "
+      >
+        <div
+          style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div style="font-weight: 600; color: #5b478f;">Add Deposit</div>
+          <button
+            onclick="closeDepositModal()"
+            style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            "
+          >×</button>
+        </div>
 
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label
+              style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              "
+            >
+              Depositor Name
+            </label>
+            <input
+              type="text"
+              id="depositor"
+              placeholder="Enter name"
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              "
+            >
+          </div>
 
-<main class="container">
+          <div style="margin-bottom: 24px;">
+            <label
+              style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              "
+            >
+              Amount (₱)
+            </label>
+            <input
+              type="number"
+              id="amount"
+              placeholder="0.00"
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              "
+            >
+          </div>
 
-
-<div class="page-title">
-
-  <h2>Savings</h2>
-
-  <p>
-    Monitor and manage savings deposits
-  </p>
-
-</div>
-
-
-<!-- ==================================================
-     SUMMARY
-================================================== -->
-
-<section class="summary-grid">
-
-
-<!-- TOTAL SAVINGS -->
-
-<div class="summary-card">
-
-  <div class="summary-icon">
-    ₱
-  </div>
-
-  <div class="summary-label">
-    Total Savings
-  </div>
-
-  <div
-    class="summary-value"
-    id="totalSavings">
-
-    ₱0.00
-
-  </div>
-
-</div>
-
-
-<!-- INTEREST EARNED -->
-
-<div class="summary-card">
-
-  <div class="summary-icon">
-    %
-  </div>
-
-  <div class="summary-label">
-    Interest Earned
-  </div>
-
-  <div
-    class="summary-value"
-    id="interestEarned">
-
-    ₱0.00
-
-  </div>
-
-</div>
-
-
-<!-- CASH ON HAND -->
-
-<div class="summary-card cash-card">
-
-  <div class="summary-icon">
-    💵
-  </div>
-
-  <div class="summary-label">
-    Cash on Hand
-  </div>
-
-  <div
-    class="summary-value"
-    id="cashOnHand">
-
-    ₱0.00
-
-  </div>
-
-  <div class="cash-description">
-    Savings less outstanding principal
-  </div>
-
-</div>
-
-
-<!-- EXPECTED PROFIT -->
-
-<div class="summary-card profit-card">
-
-  <div class="summary-icon profit-icon">
-    📈
-  </div>
-
-  <div class="summary-label">
-    Expected Profit (Outstanding Interest)
-  </div>
-
-  <div
-    class="summary-value"
-    id="expectedProfit">
-
-    ₱0.00
-
-  </div>
-
-</div>
-
-
-</section>
-
-
-<!-- ==================================================
-     DASHBOARD
-================================================== -->
-
-<section class="dashboard-grid">
-
-
-<!-- ==================================================
-     SAVINGS
-================================================== -->
-
-<section class="content-card">
-
-
-<div class="content-header">
-
-  <div>
-
-    <div class="content-title">
-      Deposit Records
+          <button
+            id="saveDepositButton"
+            class="btn btn-primary"
+            style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveDeposit()"
+          >
+            Save Deposit
+          </button>
+        </div>
+      </div>
     </div>
-
-    <div class="content-subtitle">
-      Savings transaction history
-    </div>
-
-  </div>
-
-
-  <button
-    class="btn btn-primary"
-    onclick="openDepositModal()">
-
-    + Add Deposit
-
-  </button>
-
-</div>
-
-
-<div class="table-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-  <th>No.</th>
-
-  <th>Deposit Date</th>
-
-  <th>Depositor</th>
-
-  <th>Amount</th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="savingsTable">
-
-<tr>
-
-<td colspan="4">
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-Loading savings records...
-
-</div>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-
-</section>
-
-
-<!-- ==================================================
-     CREDIT
-================================================== -->
-
-<section class="content-card credit-panel">
-
-
-<div class="content-header">
-
-  <div>
-
-    <div class="content-title">
-      Outstanding Credit
-    </div>
-
-    <div class="content-subtitle">
-      Billed credits only
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- CREDIT TOTAL -->
-
-<div class="credit-total">
-
-  <div class="credit-total-label">
-    Total Outstanding
-  </div>
-
-  <div
-    class="credit-total-value"
-    id="totalCredit">
-
-    ₱0.00
-
-  </div>
-
-</div>
-
-
-<!-- CREDIT BREAKDOWN -->
-
-<div class="credit-breakdown">
-
-
-<div class="breakdown-row">
-
-  <span>
-    Principal
-  </span>
-
-  <span
-    class="breakdown-value"
-    id="creditPrincipal">
-
-    ₱0.00
-
-  </span>
-
-</div>
-
-
-<div class="breakdown-row">
-
-  <span>
-    Expected Profit
-  </span>
-
-  <span
-    class="breakdown-value"
-    id="creditInterest">
-
-    ₱0.00
-
-  </span>
-
-</div>
-
-
-<div class="breakdown-row">
-
-  <span>
-    Late Penalty
-  </span>
-
-  <span
-    class="breakdown-value"
-    id="creditPenalty">
-
-    ₱0.00
-
-  </span>
-
-</div>
-
-
-</div>
-
-
-<!-- CREDIT LIST -->
-
-<div
-  class="credit-list"
-  id="creditList">
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-Loading credit records...
-
-</div>
-
-</div>
-
-
-</section>
-
-
-</section>
-
-
-</main>
-
-
-<!-- ==================================================
-     DEPOSIT MODAL
-================================================== -->
-
-<div
-  class="modal-overlay"
-  id="depositModal">
-
-
-<div class="modal">
-
-
-<div class="modal-header">
-
-<h3>
-  Add Savings Deposit
-</h3>
-
-<button
-  class="close-btn"
-  onclick="closeDepositModal()">
-
-  ×
-
-</button>
-
-</div>
-
-
-<div class="modal-body">
-
-
-<div class="form-group">
-
-<label>
-  Depositor
-</label>
-
-<input
-  type="text"
-  id="depositor"
-  class="form-control"
-  placeholder="Enter depositor name">
-
-</div>
-
-
-<div class="form-group">
-
-<label>
-  Amount
-</label>
-
-<input
-  type="number"
-  id="amount"
-  class="form-control"
-  placeholder="0.00"
-  min="0"
-  step="0.01">
-
-</div>
-
-
-</div>
-
-
-<div class="modal-footer">
-
-<button
-  class="btn btn-cancel"
-  onclick="closeDepositModal()">
-
-  Cancel
-
-</button>
-
-
-<button
-  class="btn btn-primary"
-  id="saveDepositButton"
-  onclick="saveDeposit()">
-
-  Save Deposit
-
-</button>
-
-</div>
-
-
-</div>
-
-</div>
     </div>
     
-    <script type="module" src="/main.js"></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
