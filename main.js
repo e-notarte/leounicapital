@@ -3,6 +3,32 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbzC0IkHcg7Q7BzJ1dhd_VPkGGNeN1uJBDNLAYMUv8ODq-6iiz6B20HndoF034BGKF9eZw/exec';
 
 let authToken = localStorage.getItem('leo_auth_token');
+let loggedInUser = localStorage.getItem('leo_username');
+
+function getUserRole() {
+  if (!loggedInUser) return 'user';
+  return loggedInUser.toLowerCase() === 'admin' ? 'admin' : 'user';
+}
+
+function applyRoleUI() {
+  const role = getUserRole();
+  const adminCashCard = document.getElementById('adminCashCard');
+  const adminProfitCard = document.getElementById('adminProfitCard');
+  const adminCreditPanel = document.getElementById('adminCreditPanel');
+  const addDepositBtn = document.getElementById('addDepositBtn');
+  
+  if (role === 'admin') {
+    if (adminCashCard) adminCashCard.style.display = 'block';
+    if (adminProfitCard) adminProfitCard.style.display = 'block';
+    if (adminCreditPanel) adminCreditPanel.style.display = 'block';
+    if (addDepositBtn) addDepositBtn.style.display = 'inline-block';
+  } else {
+    if (adminCashCard) adminCashCard.style.display = 'none';
+    if (adminProfitCard) adminProfitCard.style.display = 'none';
+    if (adminCreditPanel) adminCreditPanel.style.display = 'none';
+    if (addDepositBtn) addDepositBtn.style.display = 'none';
+  }
+}
 
 // Global variables
 window.totalSavingsAmount = 0;
@@ -57,7 +83,9 @@ document.getElementById('loginButton').addEventListener('click', async () => {
   try {
     const data = await apiCall('login', { username, password }, 'POST');
     localStorage.setItem('leo_auth_token', data.token);
+    localStorage.setItem('leo_username', username);
     authToken = data.token;
+    loggedInUser = username;
     showApp();
   } catch (error) {
     errorEl.textContent = error.message;
@@ -78,13 +106,16 @@ function checkAuth() {
 
 document.getElementById('logoutButton').addEventListener('click', () => {
   localStorage.removeItem('leo_auth_token');
+  localStorage.removeItem('leo_username');
   authToken = null;
+  loggedInUser = null;
   checkAuth();
 });
 
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  applyRoleUI();
   loadSavings();
   loadCredit();
   loadFinancialSummary();
@@ -105,17 +136,30 @@ async function loadSavings() {
 
 function renderSavings(data) {
   const table = document.getElementById("savingsTable");
+  const role = getUserRole();
 
-  if (!Array.isArray(data) || data.length === 0) {
+  let filteredData = data;
+  if (role !== 'admin' && Array.isArray(data)) {
+    filteredData = data.filter(row => {
+      const depositor = row[2] || "";
+      return depositor.trim().toLowerCase() === loggedInUser.toLowerCase();
+    });
+  }
+
+  if (!Array.isArray(filteredData) || filteredData.length === 0) {
     table.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💰</div><h3>No savings yet</h3><p>Add your first deposit to get started.</p></div></td></tr>`;
     window.totalSavingsAmount = 0;
+    document.getElementById("creditLimit").textContent = "₱0.00";
+    if (role !== 'admin') {
+      document.getElementById("totalSavings").textContent = "₱0.00";
+    }
     return;
   }
 
   let html = "";
   let total = 0;
 
-  data.forEach(function (row, index) {
+  filteredData.forEach(function (row, index) {
     const number = row[0] !== undefined && row[0] !== "" ? row[0] : index + 1;
     const date = row[1] || "";
     const depositor = row[2] || "";
@@ -132,6 +176,13 @@ function renderSavings(data) {
 
   table.innerHTML = html;
   window.totalSavingsAmount = total;
+  
+  const creditLimit = total * 0.5;
+  document.getElementById("creditLimit").textContent = "₱" + formatMoney(creditLimit);
+  
+  if (role !== 'admin') {
+    document.getElementById("totalSavings").textContent = "₱" + formatMoney(total);
+  }
 }
 
 /* ==================================================
@@ -140,7 +191,10 @@ function renderSavings(data) {
 async function loadFinancialSummary() {
   try {
     const summary = await apiCall('getFinancialSummary');
-    document.getElementById("totalSavings").textContent = "₱" + formatMoney(summary.totalSavings);
+    const role = getUserRole();
+    if (role === 'admin') {
+      document.getElementById("totalSavings").textContent = "₱" + formatMoney(summary.totalSavings);
+    }
     document.getElementById("interestEarned").textContent = "₱" + formatMoney(summary.interestEarned);
     document.getElementById("expectedProfit").textContent = "₱" + formatMoney(summary.outstandingInterest);
     document.getElementById("cashOnHand").textContent = "₱" + formatMoney(summary.cashOnHand);
