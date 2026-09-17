@@ -62,17 +62,24 @@
               <div class="summary-value" id="interestEarned">₱0.00</div>
             </div>
 
-            <div class="summary-card cash-card">
+            <div class="summary-card cash-card" id="adminCashCard">
               <div class="summary-icon">💵</div>
               <div class="summary-label">Cash on Hand</div>
               <div class="summary-value" id="cashOnHand">₱0.00</div>
               <div class="cash-description">Savings less outstanding principal</div>
             </div>
 
-            <div class="summary-card">
+            <div class="summary-card" id="adminProfitCard">
               <div class="summary-icon">📈</div>
               <div class="summary-label">Expected Profit <span style="font-size:9px;font-weight:400">(Outstanding Interest)</span></div>
               <div class="summary-value" id="expectedProfit">₱0.00</div>
+            </div>
+
+            <div class="summary-card" id="creditLimitCard">
+              <div class="summary-icon">💳</div>
+              <div class="summary-label">Credit Limit</div>
+              <div class="summary-value" id="creditLimit">₱0.00</div>
+              <div class="cash-description" style="margin-top: 5px; font-size: 9px; color: #9a93a5;">50% of Total Savings</div>
             </div>
           </div>
 
@@ -82,7 +89,7 @@
                 <div class="content-title">Deposit Records</div>
                 <div class="content-subtitle">Savings transaction history</div>
               </div>
-              <button class="btn btn-primary" onclick="openDepositModal()">+ Add Deposit</button>
+              <button class="btn btn-primary" id="addDepositBtn" onclick="openDepositModal()">+ Add Deposit</button>
             </div>
 
             <div class="table-container">
@@ -107,7 +114,7 @@
 
         <!-- RIGHT COLUMN -->
         <div class="dashboard-side">
-          <div class="content-card credit-panel">
+          <div class="content-card credit-panel" id="adminCreditPanel">
             <div class="content-header">
               <div class="content-title">Outstanding Credit</div>
               <div class="content-subtitle">Billed credits only</div>
