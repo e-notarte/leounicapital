@@ -18,9 +18,23 @@
         <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
         <button id="loginButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
         <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
-          New user? <a href="#" style="color: #5b478f; font-weight: 600; text-decoration: none;">Register</a>
+          New user? <a href="#" id="showRegisterLink" style="color: #5b478f; font-weight: 600; text-decoration: none;">Register</a>
         </div>
         <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+      </div>
+    </div>
+
+    <!-- Register Screen (Initially Hidden) -->
+    <div id="registerScreen" style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
+      <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+        <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
+        <input type="text" id="regUsername" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+        <button id="registerButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Register</button>
+        <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
+          Already have an account? <a href="#" id="showLoginLink" style="color: #5b478f; font-weight: 600; text-decoration: none;">Login</a>
+        </div>
+        <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
       </div>
     </div>
 
