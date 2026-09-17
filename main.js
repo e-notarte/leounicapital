@@ -30,17 +30,20 @@ async function applyRoleUI() {
   const adminProfitCard = document.getElementById('adminProfitCard');
   const adminCreditPanel = document.getElementById('adminCreditPanel');
   const addDepositBtn = document.getElementById('addDepositBtn');
+  const addCreditBtn = document.getElementById('addCreditBtn');
   
   if (currentRole === 'admin') {
     if (adminCashCard) adminCashCard.style.display = 'block';
     if (adminProfitCard) adminProfitCard.style.display = 'block';
     if (adminCreditPanel) adminCreditPanel.style.display = 'block';
     if (addDepositBtn) addDepositBtn.style.display = 'inline-block';
+    if (addCreditBtn) addCreditBtn.style.display = 'inline-block';
   } else {
     if (adminCashCard) adminCashCard.style.display = 'none';
     if (adminProfitCard) adminProfitCard.style.display = 'none';
     if (adminCreditPanel) adminCreditPanel.style.display = 'none';
     if (addDepositBtn) addDepositBtn.style.display = 'none';
+    if (addCreditBtn) addCreditBtn.style.display = 'none';
   }
 }
 
@@ -333,6 +336,19 @@ window.closeDepositModal = function () {
   document.getElementById("amount").value = "";
 }
 
+window.openCreditModal = function () {
+  document.getElementById("creditModal").style.display = "flex";
+  document.getElementById("borrowerEmail").focus();
+}
+
+window.closeCreditModal = function () {
+  document.getElementById("creditModal").style.display = "none";
+  document.getElementById("borrowerEmail").value = "";
+  document.getElementById("creditAmount").value = "";
+  document.getElementById("creditProfit").value = "";
+  document.getElementById("creditDueDate").value = "";
+}
+
 /* ==================================================
    SAVE DEPOSIT
 ================================================== */
@@ -367,6 +383,51 @@ window.saveDeposit = async function () {
   } finally {
     button.disabled = false;
     button.textContent = "Save Deposit";
+  }
+}
+
+/* ==================================================
+   SAVE CREDIT
+================================================== */
+window.saveCredit = async function () {
+  const borrower = document.getElementById("borrowerEmail").value.trim();
+  const amount = Number(document.getElementById("creditAmount").value);
+  const profit = Number(document.getElementById("creditProfit").value) || 0;
+  const dueDate = document.getElementById("creditDueDate").value;
+
+  if (!borrower) return alert("Please enter the borrower email.");
+  if (!amount || amount <= 0) return alert("Please enter a valid amount.");
+
+  const button = document.getElementById("saveCreditButton");
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const insertData = { 
+      borrower_name: borrower, 
+      amount: amount,
+      expected_profit: profit,
+      status: 'Billed',
+      user_id: loggedInUser.id
+    };
+    
+    if (dueDate) {
+      insertData.due_date = new Date(dueDate).toISOString();
+    }
+
+    const { data, error } = await supabase
+      .from('credits')
+      .insert([insertData]);
+
+    if (error) throw error;
+    
+    closeCreditModal();
+    loadCredit(); // Refresh
+  } catch (error) {
+    alert(error.message || "Unable to save credit.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Credit";
   }
 }
 
