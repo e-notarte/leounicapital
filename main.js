@@ -301,39 +301,50 @@ function renderCredit(data) {
   data.forEach(function (credit) {
     const principal = Number(credit.amount) || 0;
     
-    // Auto-compute expected profit and late penalty dynamically
     const createdDate = new Date(credit.created_at);
     let dueDate = credit.due_date ? new Date(credit.due_date) : null;
     let expectedProfit = 0;
     let penalty = 0;
     let lateDays = 0;
     
-    if (dueDate) {
-      // 7% per month. Calculate months between created_at and due_date, rounded up.
-      const msPerMonth = 1000 * 60 * 60 * 24 * 30;
-      const durationMs = dueDate - createdDate;
-      const months = Math.max(1, Math.ceil(durationMs / msPerMonth)); // At least 1 month
-      expectedProfit = principal * 0.07 * months;
-      
-      // Calculate penalty: 0.5% per day if past due
-      const now = new Date();
-      if (now > dueDate && credit.status === 'Billed') {
-        lateDays = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
-        if (lateDays > 0) {
-          penalty = principal * 0.005 * lateDays;
-        }
-      }
+    if (credit.status === 'Paid') {
+      expectedProfit = Number(credit.expected_profit) || 0;
+      penalty = Number(credit.late_penalty) || 0;
     } else {
-      // Default to 1 month profit if no due date specified
-      expectedProfit = principal * 0.07;
+      // Auto-compute expected profit and late penalty dynamically
+      if (dueDate) {
+        // 7% per month. Calculate months between created_at and due_date, rounded up.
+        const msPerMonth = 1000 * 60 * 60 * 24 * 30;
+        const durationMs = dueDate - createdDate;
+        const months = Math.max(1, Math.ceil(durationMs / msPerMonth)); // At least 1 month
+        expectedProfit = principal * 0.07 * months;
+        
+        // Calculate penalty: 0.5% per day if past due
+        const now = new Date();
+        if (now > dueDate && credit.status === 'Billed') {
+          lateDays = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+          if (lateDays > 0) {
+            penalty = principal * 0.005 * lateDays;
+          }
+        }
+      } else {
+        // Default to 1 month profit if no due date specified
+        expectedProfit = principal * 0.07;
+      }
     }
 
     const total = principal + expectedProfit + penalty;
 
-    principalTotal += principal;
-    interestTotal += expectedProfit;
-    penaltyTotal += penalty;
-    outstandingTotal += total;
+    // Only add to outstanding totals if not paid
+    if (credit.status !== 'Paid') {
+      principalTotal += principal;
+      interestTotal += expectedProfit;
+      penaltyTotal += penalty;
+      outstandingTotal += total;
+    }
+
+    const isPaid = credit.status === 'Paid';
+    const statusColor = isPaid ? 'color: #10b981; font-weight: 600;' : '';
 
     html += `<div class="credit-item">
       <div class="credit-item-top">
@@ -341,11 +352,11 @@ function renderCredit(data) {
         <div class="credit-amount">₱${formatMoney(total)}</div>
       </div>
       <div class="credit-date">Credit: ${formatDate(credit.created_at)}</div>
-      <div class="credit-status">${escapeHtml(credit.status || "Billed")}</div>
+      <div class="credit-status" style="${statusColor}">${escapeHtml(credit.status || "Billed")}</div>
       <div class="credit-details">
         <div class="credit-detail">Principal: <strong>₱${formatMoney(principal)}</strong></div>
-        <div class="credit-detail">Expected Profit: <strong>₱${formatMoney(expectedProfit)}</strong></div>
-        <div class="credit-detail">Due: <strong>${dueDate ? formatDate(credit.due_date) : 'N/A'}</strong></div>
+        <div class="credit-detail">${isPaid ? 'Interest Earned' : 'Expected Profit'}: <strong>₱${formatMoney(expectedProfit)}</strong></div>
+        <div class="credit-detail">${isPaid ? 'Paid On' : 'Due'}: <strong>${dueDate ? formatDate(credit.due_date) : 'N/A'}</strong></div>
         <div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>
       </div>
       ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
