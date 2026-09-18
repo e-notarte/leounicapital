@@ -16,49 +16,65 @@
 <body>
   <!-- Login Screen (Initially Hidden) -->
   <div id="loginScreen"
-    style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
-    <div
-      style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <img src="./assets/logo.jpg" alt="Leo Logo"
-          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+    style="display: flex; flex-direction: column; height: 100vh; background: #f7f5fb; align-items: center; justify-content: center; position: relative;">
+    <h1 style="font-size: 40px; font-weight: 800; position: absolute; top: 10%; text-align: center; width: 100%; letter-spacing: 1px;">LEO Online</h1>
+    
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; max-width: 900px; gap: 50px; padding: 20px;">
+      
+      <!-- Left Graphic -->
+      <div style="flex: 1; display: flex; justify-content: center;">
+        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic" style="width: 100%; max-width: 400px; object-fit: contain; mix-blend-mode: multiply;" />
       </div>
-      <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Uni Capital</h2>
-      <input type="email" id="username" placeholder="Email (e.g. emman@leouni.com)"
-        style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-      <input type="password" id="password" placeholder="Password"
-        style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-      <button id="loginButton" class="btn btn-primary"
-        style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
-      <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
-        New user? <a href="#" id="showRegisterLink"
-          style="color: #5b478f; font-weight: 600; text-decoration: none;">Register</a>
+
+      <!-- Login Card -->
+      <div style="flex: 1; display: flex; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 350px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="./assets/logo.jpg" alt="Leo Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
+          </div>
+          <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: 700;">Leo Dashboard Login</h2>
+          <input type="email" id="username" placeholder="admin" style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <input type="password" id="password" placeholder="••••••••" style="width: 100%; padding: 12px 15px; margin-bottom: 20px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <button id="loginButton" style="width: 100%; padding: 12px; font-size: 14px; background: #6f58a3; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: background 0.3s;">Login</button>
+          <div style="text-align: center; margin-top: 15px; font-size: 11px; color: #777187; font-weight: 500;">
+            New user? <a href="#" id="showRegisterLink" style="color: #5b478f; font-weight: 700; text-decoration: none;">Register</a>
+          </div>
+          <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+        </div>
       </div>
-      <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+      
     </div>
   </div>
 
   <!-- Register Screen (Initially Hidden) -->
   <div id="registerScreen"
-    style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
-    <div
-      style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <img src="./assets/logo.jpg" alt="Leo Logo"
-          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+    style="display: none; flex-direction: column; height: 100vh; background: #f7f5fb; align-items: center; justify-content: center; position: relative;">
+    <h1 style="font-size: 40px; font-weight: 800; position: absolute; top: 10%; text-align: center; width: 100%; letter-spacing: 1px;">LEO Online</h1>
+    
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; max-width: 900px; gap: 50px; padding: 20px;">
+      
+      <!-- Left Graphic -->
+      <div style="flex: 1; display: flex; justify-content: center;">
+        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic" style="width: 100%; max-width: 400px; object-fit: contain; mix-blend-mode: multiply;" />
       </div>
-      <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
-      <input type="email" id="regUsername" placeholder="Email (e.g. emman@leouni.com)"
-        style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-      <input type="password" id="regPassword" placeholder="Password"
-        style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-      <button id="registerButton" class="btn btn-primary"
-        style="width: 100%; padding: 12px; font-size: 14px;">Register</button>
-      <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
-        Already have an account? <a href="#" id="showLoginLink"
-          style="color: #5b478f; font-weight: 600; text-decoration: none;">Login</a>
+
+      <!-- Register Card -->
+      <div style="flex: 1; display: flex; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 350px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="./assets/logo.jpg" alt="Leo Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
+          </div>
+          <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: 700;">Create Account</h2>
+          <input type="email" id="regUsername" placeholder="Email" style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px 15px; margin-bottom: 20px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <button id="registerButton" style="width: 100%; padding: 12px; font-size: 14px; background: #6f58a3; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: background 0.3s;">Register</button>
+          <div style="text-align: center; margin-top: 15px; font-size: 11px; color: #777187; font-weight: 500;">
+            Already have an account? <a href="#" id="showLoginLink" style="color: #5b478f; font-weight: 700; text-decoration: none;">Login</a>
+          </div>
+          <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
+        </div>
       </div>
-      <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
+      
     </div>
   </div>
 
