@@ -1,56 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Leo Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="./assets/logo.jpg" />
-    <link rel="stylesheet" href="./style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  </head>
-  <body>
-    <!-- Login Screen (Initially Hidden) -->
-    <div id="loginScreen" style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
-      <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="./assets/logo.jpg" alt="Leo Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
-        </div>
-        <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Dashboard Login</h2>
-        <input type="email" id="username" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-        <input type="password" id="password" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-        <button id="loginButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
-        <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
-          New user? <a href="#" id="showRegisterLink" style="color: #5b478f; font-weight: 600; text-decoration: none;">Register</a>
-        </div>
-        <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
-      </div>
-    </div>
 
-    <!-- Register Screen (Initially Hidden) -->
-    <div id="registerScreen" style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
-      <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="./assets/logo.jpg" alt="Leo Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
-        </div>
-        <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
-        <input type="email" id="regUsername" placeholder="Email (e.g. emman@leouni.com)" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-        <input type="password" id="regPassword" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
-        <button id="registerButton" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px;">Register</button>
-        <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
-          Already have an account? <a href="#" id="showLoginLink" style="color: #5b478f; font-weight: 600; text-decoration: none;">Login</a>
-        </div>
-        <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
-      </div>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leo Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="./assets/logo.jpg" />
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 
-    <!-- Main App -->
-    <div id="app" style="display: none; position: relative;">
-      
-      <!-- Watermark Background -->
-      <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('./assets/logo.jpg'); background-repeat: no-repeat; background-position: center; background-size: 40%; opacity: 0.04; pointer-events: none; z-index: 0;"></div>
+<body>
+  <!-- Login Screen (Initially Hidden) -->
+  <div id="loginScreen"
+    style="display: flex; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
+    <div
+      style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="./assets/logo.jpg" alt="Leo Logo"
+          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+      </div>
+      <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Leo Uni Capital</h2>
+      <input type="email" id="username" placeholder="Email (e.g. emman@leouni.com)"
+        style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+      <input type="password" id="password" placeholder="Password"
+        style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+      <button id="loginButton" class="btn btn-primary"
+        style="width: 100%; padding: 12px; font-size: 14px;">Login</button>
+      <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
+        New user? <a href="#" id="showRegisterLink"
+          style="color: #5b478f; font-weight: 600; text-decoration: none;">Register</a>
+      </div>
+      <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+    </div>
+  </div>
+
+  <!-- Register Screen (Initially Hidden) -->
+  <div id="registerScreen"
+    style="display: none; height: 100vh; justify-content: center; align-items: center; background: #f7f5fb;">
+    <div
+      style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 3px 12px rgba(71,55,112,0.07); width: 100%; max-width: 400px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="./assets/logo.jpg" alt="Leo Logo"
+          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" />
+      </div>
+      <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center;">Create Account</h2>
+      <input type="email" id="regUsername" placeholder="Email (e.g. emman@leouni.com)"
+        style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+      <input type="password" id="regPassword" placeholder="Password"
+        style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ebe6f5; border-radius: 9px;" />
+      <button id="registerButton" class="btn btn-primary"
+        style="width: 100%; padding: 12px; font-size: 14px;">Register</button>
+      <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #777187;">
+        Already have an account? <a href="#" id="showLoginLink"
+          style="color: #5b478f; font-weight: 600; text-decoration: none;">Login</a>
+      </div>
+      <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" style="display: none; position: relative;">
+
+    <!-- Watermark Background -->
+    <div
+      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('./assets/logo.jpg'); background-repeat: no-repeat; background-position: center; background-size: 40%; opacity: 0.04; pointer-events: none; z-index: 0;">
+    </div>
 
     <div class="header" style="position: relative; z-index: 10;">
       <div class="brand">
@@ -146,7 +164,8 @@
               </div>
               <div>
                 <button class="btn btn-primary" id="addCreditBtn" onclick="openCreditModal()">+ Add Credit</button>
-                <button class="btn btn-primary" id="requestLoanBtn" onclick="openRequestLoanModal()" style="display: none;">Request Loan</button>
+                <button class="btn btn-primary" id="requestLoanBtn" onclick="openRequestLoanModal()"
+                  style="display: none;">Request Loan</button>
               </div>
             </div>
 
@@ -181,9 +200,7 @@
 
 
     <!-- DEPOSIT MODAL -->
-    <div
-      id="depositModal"
-      style="
+    <div id="depositModal" style="
         display: none;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -192,101 +209,75 @@
         justify-content: center;
         z-index: 1000;
         padding: 20px;
-      "
-    >
-      <div
-        style="
+      ">
+      <div style="
           background: white;
           width: 100%;
           max-width: 380px;
           border-radius: 16px;
           overflow: hidden;
           box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        "
-      >
-        <div
-          style="
+        ">
+        <div style="
             padding: 20px;
             border-bottom: 1px solid #f0edf5;
             display: flex;
             justify-content: space-between;
             align-items: center;
-          "
-        >
+          ">
           <div style="font-weight: 600; color: #5b478f;">Add Deposit</div>
-          <button
-            onclick="closeDepositModal()"
-            style="
+          <button onclick="closeDepositModal()" style="
               background: none;
               border: none;
               font-size: 20px;
               color: #a49eb5;
               cursor: pointer;
-            "
-          >×</button>
+            ">×</button>
         </div>
 
         <div style="padding: 24px 20px;">
           <div style="margin-bottom: 18px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Depositor Email
             </label>
-            <input
-              type="email"
-              id="depositor"
-              placeholder="e.g. emman@leouni.com"
-              style="
+            <input type="email" id="depositor" placeholder="e.g. emman@leouni.com" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
           </div>
 
           <div style="margin-bottom: 24px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Amount (₱)
             </label>
-            <input
-              type="number"
-              id="amount"
-              placeholder="0.00"
-              style="
+            <input type="number" id="amount" placeholder="0.00" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
           </div>
 
-          <button
-            id="saveDepositButton"
-            class="btn btn-primary"
-            style="width: 100%; padding: 14px; font-size: 13px;"
-            onclick="saveDeposit()"
-          >
+          <button id="saveDepositButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveDeposit()">
             Save Deposit
           </button>
         </div>
@@ -294,9 +285,7 @@
     </div>
 
     <!-- CREDIT MODAL -->
-    <div
-      id="creditModal"
-      style="
+    <div id="creditModal" style="
         display: none;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -305,127 +294,95 @@
         justify-content: center;
         z-index: 1000;
         padding: 20px;
-      "
-    >
-      <div
-        style="
+      ">
+      <div style="
           background: white;
           width: 100%;
           max-width: 380px;
           border-radius: 16px;
           overflow: hidden;
           box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        "
-      >
-        <div
-          style="
+        ">
+        <div style="
             padding: 20px;
             border-bottom: 1px solid #f0edf5;
             display: flex;
             justify-content: space-between;
             align-items: center;
-          "
-        >
+          ">
           <div style="font-weight: 600; color: #5b478f;">Add Credit</div>
-          <button
-            onclick="closeCreditModal()"
-            style="
+          <button onclick="closeCreditModal()" style="
               background: none;
               border: none;
               font-size: 20px;
               color: #a49eb5;
               cursor: pointer;
-            "
-          >×</button>
+            ">×</button>
         </div>
 
         <div style="padding: 24px 20px;">
           <div style="margin-bottom: 18px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Borrower Email
             </label>
-            <input
-              type="email"
-              id="borrowerEmail"
-              placeholder="e.g. emman@leouni.com"
-              style="
+            <input type="email" id="borrowerEmail" placeholder="e.g. emman@leouni.com" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
           </div>
 
           <div style="margin-bottom: 18px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Principal Amount (₱)
             </label>
-            <input
-              type="number"
-              id="creditAmount"
-              placeholder="0.00"
-              style="
+            <input type="number" id="creditAmount" placeholder="0.00" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
           </div>
 
           <div style="margin-bottom: 24px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Due Date
             </label>
-            <input
-              type="date"
-              id="creditDueDate"
-              style="
+            <input type="date" id="creditDueDate" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
           </div>
 
-          <button
-            id="saveCreditButton"
-            class="btn btn-primary"
-            style="width: 100%; padding: 14px; font-size: 13px;"
-            onclick="saveCredit()"
-          >
+          <button id="saveCreditButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveCredit()">
             Save Credit
           </button>
         </div>
@@ -433,9 +390,7 @@
     </div>
 
     <!-- REQUEST LOAN MODAL -->
-    <div
-      id="requestLoanModal"
-      style="
+    <div id="requestLoanModal" style="
         display: none;
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
@@ -444,84 +399,66 @@
         justify-content: center;
         z-index: 1000;
         padding: 20px;
-      "
-    >
-      <div
-        style="
+      ">
+      <div style="
           background: white;
           width: 100%;
           max-width: 380px;
           border-radius: 16px;
           overflow: hidden;
           box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        "
-      >
-        <div
-          style="
+        ">
+        <div style="
             padding: 20px;
             border-bottom: 1px solid #f0edf5;
             display: flex;
             justify-content: space-between;
             align-items: center;
-          "
-        >
+          ">
           <div style="font-weight: 600; color: #5b478f;">Request Loan</div>
-          <button
-            onclick="closeRequestLoanModal()"
-            style="
+          <button onclick="closeRequestLoanModal()" style="
               background: none;
               border: none;
               font-size: 20px;
               color: #a49eb5;
               cursor: pointer;
-            "
-          >×</button>
+            ">×</button>
         </div>
 
         <div style="padding: 24px 20px;">
           <div style="margin-bottom: 18px;">
-            <label
-              style="
+            <label style="
                 display: block;
                 font-size: 11px;
                 font-weight: 500;
                 color: #777187;
                 margin-bottom: 8px;
-              "
-            >
+              ">
               Loan Amount (₱)
             </label>
-            <input
-              type="number"
-              id="loanRequestAmount"
-              placeholder="0.00"
-              style="
+            <input type="number" id="loanRequestAmount" placeholder="0.00" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
                 border-radius: 9px;
                 font-family: inherit;
                 font-size: 12px;
-              "
-            >
+              ">
             <div style="font-size: 11px; color: #777187; margin-top: 5px;">
               Your available credit limit is: <strong id="availableCreditLimitDisplay">₱0.00</strong>
             </div>
           </div>
 
-          <button
-            id="requestLoanButton"
-            class="btn btn-primary"
-            style="width: 100%; padding: 14px; font-size: 13px;"
-            onclick="requestLoan()"
-          >
+          <button id="requestLoanButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="requestLoan()">
             Submit Request
           </button>
         </div>
       </div>
     </div>
-    </div>
-    
-    <script type="module" src="./main.js"></script>
-  </body>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
 </html>
