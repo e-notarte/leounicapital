@@ -1219,10 +1219,9 @@ tbody tr:hover {
   }
 
   .header {
-
-    min-height:
-      64px;
-
+    min-height: 64px;
+    padding: 0 15px;
+    gap: 10px;
   }
 
   .brand-icon {
@@ -1243,10 +1242,14 @@ tbody tr:hover {
   }
 
   .brand-text span {
+    display: none;
+  }
 
-    font-size:
-      8px;
-
+  #userEmailDisplay {
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .page-title h2 {
