@@ -307,6 +307,18 @@ async function loadCredit() {
     const { data, error } = await supabase.from('credits').select('*').order('created_at', { ascending: false });
       
     if (error) throw error;
+
+    let globalInterestEarned = 0;
+    if (Array.isArray(data)) {
+      data.forEach(credit => {
+        if (credit.status === 'Paid' || credit.status === 'Paid (Business)') {
+          const expectedProfit = Number(credit.expected_profit) || 0;
+          const penalty = Number(credit.late_penalty) || 0;
+          globalInterestEarned += (expectedProfit + penalty);
+        }
+      });
+    }
+    window.totalInterestEarned = globalInterestEarned;
     
     let filteredData = data;
     if (currentRole !== 'admin' && Array.isArray(data)) {
@@ -440,12 +452,11 @@ function renderCredit(data) {
   const interestEarnedEl = document.getElementById("interestEarned");
   if (interestEarnedEl) {
     if (currentRole === 'admin') {
-      interestEarnedEl.textContent = "₱" + formatMoney(totalInterestEarned);
+      interestEarnedEl.textContent = "₱" + formatMoney(window.totalInterestEarned);
     }
   }
 
   window.outstandingPrincipalAmount = principalTotal;
-  window.totalInterestEarned = totalInterestEarned;
   if (window.allSavingsData && window.allSavingsData.length > 0) {
     renderSavings(window.allSavingsData); // Re-render to update dividend column
   }
