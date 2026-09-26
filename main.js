@@ -309,6 +309,7 @@ function renderCredit(data) {
   }
 
   let principalTotal = 0, interestTotal = 0, penaltyTotal = 0, outstandingTotal = 0;
+  let totalInterestEarned = 0;
   let activeHtml = "";
   let historyHtml = "";
 
@@ -324,6 +325,7 @@ function renderCredit(data) {
     if (credit.status === 'Paid') {
       expectedProfit = Number(credit.expected_profit) || 0;
       penalty = Number(credit.late_penalty) || 0;
+      totalInterestEarned += (expectedProfit + penalty);
     } else {
       // Auto-compute expected profit and late penalty dynamically
       if (dueDate) {
@@ -387,6 +389,12 @@ function renderCredit(data) {
   
   if (historyList) {
     historyList.innerHTML = historyHtml || `<div class="empty-state"><div class="empty-icon">📋</div><h3>No history</h3><p>No paid credits found.</p></div>`;
+  }
+  
+  // Update Interest Earned card
+  const interestEarnedEl = document.getElementById("interestEarned");
+  if (interestEarnedEl) {
+    interestEarnedEl.textContent = "₱" + formatMoney(totalInterestEarned);
   }
   
   // Calculate summary values for admin
