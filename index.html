@@ -15,25 +15,18 @@
 
 <body>
   <!-- Login Screen (Initially Hidden) -->
-  <div id="loginScreen"
-    style="display: flex; flex-direction: column; height: 100vh; background: #f7f5fb; align-items: center; justify-content: center; position: relative;">
-    <h1
-      style="font-size: 40px; font-weight: 800; position: absolute; top: 10%; text-align: center; width: 100%; letter-spacing: 1px;">
-      LEO Online</h1>
+  <div id="loginScreen" class="auth-screen">
+    <h1 class="auth-title">LEO Online</h1>
 
-    <div
-      style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; max-width: 900px; gap: 50px; padding: 20px;">
-
+    <div class="auth-container">
       <!-- Left Graphic -->
-      <div style="flex: 1; display: flex; justify-content: center;">
-        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic"
-          style="width: 100%; max-width: 400px; object-fit: contain; mix-blend-mode: multiply;" />
+      <div class="auth-graphic-container">
+        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic" class="auth-graphic" />
       </div>
 
       <!-- Login Card -->
-      <div style="flex: 1; display: flex; justify-content: center;">
-        <div
-          style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 350px;">
+      <div class="auth-card-wrapper">
+        <div class="auth-card">
           <div style="text-align: center; margin-bottom: 20px;">
             <img src="./assets/logo.jpg" alt="Leo Logo"
               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
@@ -58,25 +51,18 @@
   </div>
 
   <!-- Register Screen (Initially Hidden) -->
-  <div id="registerScreen"
-    style="display: none; flex-direction: column; height: 100vh; background: #f7f5fb; align-items: center; justify-content: center; position: relative;">
-    <h1
-      style="font-size: 40px; font-weight: 800; position: absolute; top: 10%; text-align: center; width: 100%; letter-spacing: 1px;">
-      LEO Online</h1>
+  <div id="registerScreen" class="auth-screen" style="display: none;">
+    <h1 class="auth-title">LEO Online</h1>
 
-    <div
-      style="display: flex; flex-direction: row; align-items: center; justify-content: center; width: 100%; max-width: 900px; gap: 50px; padding: 20px;">
-
+    <div class="auth-container">
       <!-- Left Graphic -->
-      <div style="flex: 1; display: flex; justify-content: center;">
-        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic"
-          style="width: 100%; max-width: 400px; object-fit: contain; mix-blend-mode: multiply;" />
+      <div class="auth-graphic-container">
+        <img src="./assets/hero_graphic.jpg" alt="Hero Graphic" class="auth-graphic" />
       </div>
 
       <!-- Register Card -->
-      <div style="flex: 1; display: flex; justify-content: center;">
-        <div
-          style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 350px;">
+      <div class="auth-card-wrapper">
+        <div class="auth-card">
           <div style="text-align: center; margin-bottom: 20px;">
             <img src="./assets/logo.jpg" alt="Leo Logo"
               style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
