@@ -199,8 +199,11 @@ function renderSavings(data) {
 
   let filteredData = data;
   if (currentRole !== 'admin' && Array.isArray(data)) {
+    const userPrefix = loggedInUser.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
     filteredData = data.filter(row => {
-      return row.depositor_name.toLowerCase() === loggedInUser.email.toLowerCase();
+      const nameInDb = (row.depositor_name || "").toLowerCase();
+      const cleanNameInDb = nameInDb.replace(/[^a-z0-9]/g, '');
+      return nameInDb === loggedInUser.email.toLowerCase() || cleanNameInDb === userPrefix;
     });
   }
 
@@ -267,18 +270,21 @@ async function loadCredit() {
   list.innerHTML = `<div class="loading"><div class="spinner"></div>Loading credit records...</div>`;
 
   try {
-    let query = supabase.from('credits').select('*').order('created_at', { ascending: false });
-    
-    // If regular user, only fetch their own credits
-    if (currentRole !== 'admin') {
-      query = query.eq('borrower_name', loggedInUser.email);
-    }
-    
-    const { data, error } = await query;
+    const { data, error } = await supabase.from('credits').select('*').order('created_at', { ascending: false });
       
     if (error) throw error;
     
-    renderCredit(data);
+    let filteredData = data;
+    if (currentRole !== 'admin' && Array.isArray(data)) {
+      const userPrefix = loggedInUser.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      filteredData = data.filter(row => {
+        const nameInDb = (row.borrower_name || "").toLowerCase();
+        const cleanNameInDb = nameInDb.replace(/[^a-z0-9]/g, '');
+        return nameInDb === loggedInUser.email.toLowerCase() || cleanNameInDb === userPrefix;
+      });
+    }
+
+    renderCredit(filteredData);
   } catch (error) {
     list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load credits</h3><p>${escapeHtml(error.message)}</p></div>`;
   }
@@ -397,12 +403,12 @@ window.closeDepositModal = function () {
 
 window.openCreditModal = function () {
   document.getElementById("creditModal").style.display = "flex";
-  document.getElementById("borrowerEmail").focus();
+  document.getElementById("borrowerName").focus();
 }
 
 window.closeCreditModal = function () {
   document.getElementById("creditModal").style.display = "none";
-  document.getElementById("borrowerEmail").value = "";
+  document.getElementById("borrowerName").value = "";
   document.getElementById("creditAmount").value = "";
   document.getElementById("creditDueDate").value = "";
 }
@@ -430,7 +436,7 @@ window.saveDeposit = async function () {
   const amount = Number(document.getElementById("amount").value);
   const depositDate = document.getElementById("depositDate").value;
 
-  if (!depositor) return alert("Please enter the depositor email.");
+  if (!depositor) return alert("Please enter the depositor name.");
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
 
   const button = document.getElementById("saveDepositButton");
@@ -468,11 +474,11 @@ window.saveDeposit = async function () {
    SAVE CREDIT
 ================================================== */
 window.saveCredit = async function () {
-  const borrower = document.getElementById("borrowerEmail").value.trim();
+  const borrower = document.getElementById("borrowerName").value.trim();
   const amount = Number(document.getElementById("creditAmount").value);
   const dueDate = document.getElementById("creditDueDate").value;
 
-  if (!borrower) return alert("Please enter the borrower email.");
+  if (!borrower) return alert("Please enter the borrower name.");
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
   if (!dueDate) return alert("Please enter a due date.");
 
