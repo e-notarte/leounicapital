@@ -53,7 +53,7 @@ async function applyRoleUI() {
   } else {
     if (adminCashCard) adminCashCard.style.display = 'none';
     if (adminProfitCard) adminProfitCard.style.display = 'none';
-    if (creditLimitCard) creditLimitCard.style.display = 'flex'; // Show for user
+    if (creditLimitCard) creditLimitCard.style.display = 'block'; // Show for user
     if (addDepositBtn) addDepositBtn.style.display = 'none';
     if (addCreditBtn) addCreditBtn.style.display = 'none';
     if (requestLoanBtn) requestLoanBtn.style.display = 'inline-block';
