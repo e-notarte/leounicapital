@@ -310,7 +310,7 @@ function renderCredit(data) {
   data.forEach(function (credit) {
     const principal = Number(credit.amount) || 0;
     
-    const createdDate = new Date(credit.created_at);
+    const createdDate = new Date(credit.date_borrowed || credit.created_at);
     let dueDate = credit.due_date ? new Date(credit.due_date) : null;
     let expectedProfit = 0;
     let penalty = 0;
@@ -360,7 +360,7 @@ function renderCredit(data) {
         <div class="credit-name">${escapeHtml(credit.borrower_name || "")}</div>
         <div class="credit-amount">₱${formatMoney(total)}</div>
       </div>
-      <div class="credit-date">Credit: ${formatDate(credit.created_at)}</div>
+      <div class="credit-date">Credit: ${formatDate(credit.date_borrowed || credit.created_at)}</div>
       <div class="credit-status" style="${statusColor}">${escapeHtml(credit.status || "Billed")}</div>
       <div class="credit-details">
         <div class="credit-detail">Principal: <strong>₱${formatMoney(principal)}</strong></div>
@@ -413,6 +413,7 @@ window.closeCreditModal = function () {
   document.getElementById("creditModal").style.display = "none";
   document.getElementById("borrowerName").value = "";
   document.getElementById("creditAmount").value = "";
+  document.getElementById("creditDateBorrowed").value = "";
   document.getElementById("creditDueDate").value = "";
 }
 
@@ -479,6 +480,7 @@ window.saveDeposit = async function () {
 window.saveCredit = async function () {
   const borrower = document.getElementById("borrowerName").value.trim();
   const amount = Number(document.getElementById("creditAmount").value);
+  const dateBorrowed = document.getElementById("creditDateBorrowed").value;
   const dueDate = document.getElementById("creditDueDate").value;
 
   if (!borrower) return alert("Please enter the borrower name.");
@@ -497,6 +499,10 @@ window.saveCredit = async function () {
       user_id: loggedInUser.id
     };
     
+    if (dateBorrowed) {
+      insertData.date_borrowed = new Date(dateBorrowed).toISOString();
+    }
+
     if (dueDate) {
       insertData.due_date = new Date(dueDate).toISOString();
     }
