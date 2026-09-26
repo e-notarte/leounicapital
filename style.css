@@ -332,6 +332,11 @@ body {
 
 }
 
+.dashboard-main,
+.dashboard-side {
+  min-width: 0;
+}
+
 
 /* ==================================================
    CONTENT CARD
