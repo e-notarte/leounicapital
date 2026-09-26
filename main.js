@@ -396,6 +396,16 @@ function renderCredit(data) {
     const isPaid = credit.status === 'Paid';
     const statusColor = isPaid ? 'color: #10b981; font-weight: 600;' : '';
 
+      let approvalHtml = '';
+      if (currentRole === 'admin' && (credit.status === 'Requested' || credit.status === 'Requested (Business)')) {
+        approvalHtml = `
+          <div style="margin-top: 10px; display: flex; gap: 10px;">
+            <button onclick="approveLoan('${credit.id}', '${credit.status}')" class="btn btn-primary" style="padding: 5px 10px; font-size: 11px; flex: 1;">Approve</button>
+            <button onclick="rejectLoan('${credit.id}')" style="padding: 5px 10px; font-size: 11px; flex: 1; border: 1px solid #e1dceb; border-radius: 6px; background: white; cursor: pointer; color: #777187; font-weight: 600;">Reject</button>
+          </div>
+        `;
+      }
+
     const itemHtml = `<div class="credit-item">
       <div class="credit-item-top">
         <div class="credit-name">${escapeHtml(credit.borrower_name || "")}</div>
@@ -410,6 +420,7 @@ function renderCredit(data) {
         <div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>
       </div>
       ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
+      ${approvalHtml}
     </div>`;
 
     if (isPaid) {
@@ -632,6 +643,53 @@ window.requestLoan = async function () {
   } finally {
     button.disabled = false;
     button.textContent = "Submit Request";
+  }
+}
+
+/* ==================================================
+   ADMIN APPROVAL
+================================================== */
+window.approveLoan = async function(id, currentStatus) {
+  const newStatus = currentStatus === 'Requested (Business)' ? 'Billed (Business)' : 'Billed';
+  const now = new Date();
+  const dateBorrowed = now.toISOString();
+  
+  // Set due date to 1 month from now
+  const dueDate = new Date(now.setMonth(now.getMonth() + 1)).toISOString();
+
+  try {
+    const { error } = await supabase
+      .from('credits')
+      .update({ 
+        status: newStatus,
+        date_borrowed: dateBorrowed,
+        due_date: dueDate
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+    
+    loadCredit();
+    alert('Loan approved successfully.');
+  } catch(error) {
+    alert(error.message || "Unable to approve loan.");
+  }
+}
+
+window.rejectLoan = async function(id) {
+  if (!confirm("Are you sure you want to reject and delete this loan request?")) return;
+  
+  try {
+    const { error } = await supabase
+      .from('credits')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    
+    loadCredit();
+  } catch(error) {
+    alert(error.message || "Unable to reject loan.");
   }
 }
 
