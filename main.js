@@ -268,8 +268,9 @@ function renderSavings(data) {
   table.innerHTML = html;
   window.totalSavingsAmount = total;
   
-  const creditLimit = total * 0.5;
-  document.getElementById("creditLimit").textContent = "₱" + formatMoney(creditLimit);
+  const baseLimit = total * 0.5;
+  const availableLimit = baseLimit - (window.outstandingPrincipalAmount || 0);
+  document.getElementById("creditLimit").textContent = "₱" + formatMoney(availableLimit);
   
   if (currentRole !== 'admin') {
     document.getElementById("totalSavings").textContent = "₱" + formatMoney(total);
@@ -352,22 +353,25 @@ function renderCredit(data) {
     let penalty = 0;
     let lateDays = 0;
     
-    if (credit.status === 'Paid') {
+    let isBusiness = credit.status && credit.status.includes('Business');
+    let rate = isBusiness ? 0.14 : 0.07; // 14% for business, 7% standard
+
+    if (credit.status === 'Paid' || credit.status === 'Paid (Business)') {
       expectedProfit = Number(credit.expected_profit) || 0;
       penalty = Number(credit.late_penalty) || 0;
       totalInterestEarned += (expectedProfit + penalty);
     } else {
       // Auto-compute expected profit and late penalty dynamically
       if (dueDate) {
-        // 7% per month. Calculate months between created_at and due_date, rounded up.
+        // Calculate months between created_at and due_date, rounded up.
         const msPerMonth = 1000 * 60 * 60 * 24 * 30;
         const durationMs = dueDate - createdDate;
         const months = Math.max(1, Math.ceil(durationMs / msPerMonth)); // At least 1 month
-        expectedProfit = principal * 0.07 * months;
+        expectedProfit = principal * rate * months;
         
         // Calculate penalty: 0.5% per day if past due
         const now = new Date();
-        if (now > dueDate && credit.status === 'Billed') {
+        if (now > dueDate && (credit.status === 'Billed' || credit.status === 'Billed (Business)')) {
           lateDays = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
           if (lateDays > 0) {
             penalty = principal * 0.005 * lateDays;
@@ -375,7 +379,7 @@ function renderCredit(data) {
         }
       } else {
         // Default to 1 month profit if no due date specified
-        expectedProfit = principal * 0.07;
+        expectedProfit = principal * rate;
       }
     }
 
@@ -429,6 +433,7 @@ function renderCredit(data) {
     }
   }
 
+  window.outstandingPrincipalAmount = principalTotal;
   window.totalInterestEarned = totalInterestEarned;
   if (window.allSavingsData && window.allSavingsData.length > 0) {
     renderSavings(window.allSavingsData); // Re-render to update dividend column
@@ -481,8 +486,9 @@ window.openRequestLoanModal = function () {
   document.getElementById("requestLoanModal").style.display = "flex";
   
   // Set available limit text
-  const creditLimit = window.totalSavingsAmount * 0.5;
-  document.getElementById("availableCreditLimitDisplay").textContent = "₱" + formatMoney(creditLimit);
+  const baseLimit = window.totalSavingsAmount * 0.5;
+  const availableLimit = baseLimit - (window.outstandingPrincipalAmount || 0);
+  document.getElementById("availableCreditLimitDisplay").textContent = "₱" + formatMoney(availableLimit);
   
   document.getElementById("loanRequestAmount").focus();
 }
@@ -588,11 +594,16 @@ window.saveCredit = async function () {
 ================================================== */
 window.requestLoan = async function () {
   const amount = Number(document.getElementById("loanRequestAmount").value);
-  const creditLimit = window.totalSavingsAmount * 0.5;
+  const baseLimit = window.totalSavingsAmount * 0.5;
+  const availableLimit = baseLimit - (window.outstandingPrincipalAmount || 0);
 
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
-  if (amount > creditLimit) {
-    return alert("Amount exceeds your available credit limit of ₱" + formatMoney(creditLimit) + ".");
+  
+  let status = 'Requested';
+  if (amount > availableLimit) {
+    const proceed = confirm(`Amount exceeds your available standard credit limit of ₱${formatMoney(availableLimit)}.\n\nWould you like to proceed with this as a Business Loan? (Business Loans have a 14% monthly interest rate).`);
+    if (!proceed) return;
+    status = 'Requested (Business)';
   }
 
   const button = document.getElementById("requestLoanButton");
@@ -606,7 +617,7 @@ window.requestLoan = async function () {
         { 
           borrower_name: loggedInUser.email, 
           amount: amount,
-          status: 'Requested',
+          status: status,
           user_id: loggedInUser.id
         }
       ]);
