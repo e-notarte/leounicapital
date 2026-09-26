@@ -220,7 +220,7 @@ function renderSavings(data) {
 
   filteredData.forEach(function (row, index) {
     const number = index + 1;
-    const date = row.created_at;
+    const date = row.deposit_date || row.created_at;
     const depositor = row.depositor_name;
     const amount = Number(row.amount) || 0;
     total += amount;
@@ -392,6 +392,7 @@ window.closeDepositModal = function () {
   document.getElementById("depositModal").style.display = "none";
   document.getElementById("depositor").value = "";
   document.getElementById("amount").value = "";
+  document.getElementById("depositDate").value = "";
 }
 
 window.openCreditModal = function () {
@@ -427,6 +428,7 @@ window.closeRequestLoanModal = function () {
 window.saveDeposit = async function () {
   const depositor = document.getElementById("depositor").value.trim();
   const amount = Number(document.getElementById("amount").value);
+  const depositDate = document.getElementById("depositDate").value;
 
   if (!depositor) return alert("Please enter the depositor email.");
   if (!amount || amount <= 0) return alert("Please enter a valid amount.");
@@ -436,15 +438,19 @@ window.saveDeposit = async function () {
   button.textContent = "Saving...";
 
   try {
+    const insertData = { 
+      depositor_name: depositor, 
+      amount: amount,
+      user_id: loggedInUser.id // Note: currently using admin's ID since admin adds it
+    };
+    
+    if (depositDate) {
+      insertData.deposit_date = new Date(depositDate).toISOString();
+    }
+
     const { data, error } = await supabase
       .from('savings')
-      .insert([
-        { 
-          depositor_name: depositor, 
-          amount: amount,
-          user_id: loggedInUser.id // Note: currently using admin's ID since admin adds it
-        }
-      ]);
+      .insert([insertData]);
 
     if (error) throw error;
     
