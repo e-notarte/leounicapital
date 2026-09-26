@@ -295,17 +295,22 @@ async function loadCredit() {
 
 function renderCredit(data) {
   const list = document.getElementById("creditList");
+  const historyList = document.getElementById("historyCreditList");
 
   if (!Array.isArray(data) || data.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No outstanding credit</h3><p>No billed credit transactions found.</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No outstanding credit</h3><p>No active credit transactions found.</p></div>`;
+    if (historyList) {
+      historyList.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><h3>No history</h3><p>No paid credits found.</p></div>`;
+    }
     document.getElementById("totalCredit").textContent = "₱0.00";
-    document.getElementById("expectedProfit").textContent = "₱0.00";
-    document.getElementById("cashOnHand").textContent = "₱0.00";
+    if (document.getElementById("expectedProfit")) document.getElementById("expectedProfit").textContent = "₱0.00";
+    if (document.getElementById("cashOnHand")) document.getElementById("cashOnHand").textContent = "₱0.00";
     return;
   }
 
   let principalTotal = 0, interestTotal = 0, penaltyTotal = 0, outstandingTotal = 0;
-  let html = "";
+  let activeHtml = "";
+  let historyHtml = "";
 
   data.forEach(function (credit) {
     const principal = Number(credit.amount) || 0;
@@ -355,7 +360,7 @@ function renderCredit(data) {
     const isPaid = credit.status === 'Paid';
     const statusColor = isPaid ? 'color: #10b981; font-weight: 600;' : '';
 
-    html += `<div class="credit-item">
+    const itemHtml = `<div class="credit-item">
       <div class="credit-item-top">
         <div class="credit-name">${escapeHtml(credit.borrower_name || "")}</div>
         <div class="credit-amount">₱${formatMoney(total)}</div>
@@ -370,9 +375,19 @@ function renderCredit(data) {
       </div>
       ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
     </div>`;
+
+    if (isPaid) {
+      historyHtml += itemHtml;
+    } else {
+      activeHtml += itemHtml;
+    }
   });
 
-  list.innerHTML = html;
+  list.innerHTML = activeHtml || `<div class="empty-state"><div class="empty-icon">📋</div><h3>No outstanding credit</h3><p>No active credit transactions found.</p></div>`;
+  
+  if (historyList) {
+    historyList.innerHTML = historyHtml || `<div class="empty-state"><div class="empty-icon">📋</div><h3>No history</h3><p>No paid credits found.</p></div>`;
+  }
   
   // Calculate summary values for admin
   if (currentRole === 'admin') {
