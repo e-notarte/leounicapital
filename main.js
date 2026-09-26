@@ -191,9 +191,10 @@ async function loadSavings() {
       
     if (error) throw error;
     
+    window.allSavingsData = data;
     renderSavings(data);
   } catch (error) {
-    table.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load records</h3><p>${escapeHtml(error.message)}</p></div></td></tr>`;
+    table.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load records</h3><p>${escapeHtml(error.message)}</p></div></td></tr>`;
   }
 }
 
@@ -211,15 +212,32 @@ function renderSavings(data) {
   }
 
   if (!Array.isArray(filteredData) || filteredData.length === 0) {
-    table.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💰</div><h3>No savings yet</h3><p>Add your first deposit to get started.</p></div></td></tr>`;
+    table.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💰</div><h3>No savings yet</h3><p>Add your first deposit to get started.</p></div></td></tr>`;
     window.totalSavingsAmount = 0;
     document.getElementById("creditLimit").textContent = "₱0.00";
     if (currentRole !== 'admin') {
       document.getElementById("totalSavings").textContent = "₱0.00";
+      const interestEarnedEl = document.getElementById("interestEarned");
+      if (interestEarnedEl) interestEarnedEl.textContent = "₱0.00";
     }
     calculateFinancialSummary(data);
     return;
   }
+
+  // Calculate weights for ALL savings data to get global total weight
+  let totalWeight = 0;
+  if (Array.isArray(window.allSavingsData)) {
+    window.allSavingsData.forEach(row => {
+      const amount = Number(row.amount) || 0;
+      const date = row.deposit_date || row.created_at;
+      const days = Math.max(1, Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24)));
+      row.weight = amount * days;
+      totalWeight += row.weight;
+    });
+  }
+
+  const currentTotalInterest = window.totalInterestEarned || 0;
+  let userAllocatedInterest = 0;
 
   let html = "";
   let total = 0;
@@ -231,11 +249,19 @@ function renderSavings(data) {
     const amount = Number(row.amount) || 0;
     total += amount;
 
+    // Use weight if already calculated in global loop, otherwise calculate fallback
+    const days = Math.max(1, Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24)));
+    const weight = row.weight || (amount * days);
+    
+    const allocation = totalWeight > 0 ? (weight / totalWeight) * currentTotalInterest : 0;
+    userAllocatedInterest += allocation;
+
     html += `<tr>
       <td>${number}</td>
       <td>${formatDate(date)}</td>
       <td>${escapeHtml(depositor)}</td>
       <td class="amount">₱${formatMoney(amount)}</td>
+      <td class="amount" style="color: #10b981; font-weight: 600;">₱${formatMoney(allocation)}</td>
     </tr>`;
   });
 
@@ -247,6 +273,10 @@ function renderSavings(data) {
   
   if (currentRole !== 'admin') {
     document.getElementById("totalSavings").textContent = "₱" + formatMoney(total);
+    const interestEarnedEl = document.getElementById("interestEarned");
+    if (interestEarnedEl) {
+      interestEarnedEl.textContent = "₱" + formatMoney(userAllocatedInterest);
+    }
   }
   
   calculateFinancialSummary(data);
@@ -394,7 +424,14 @@ function renderCredit(data) {
   // Update Interest Earned card
   const interestEarnedEl = document.getElementById("interestEarned");
   if (interestEarnedEl) {
-    interestEarnedEl.textContent = "₱" + formatMoney(totalInterestEarned);
+    if (currentRole === 'admin') {
+      interestEarnedEl.textContent = "₱" + formatMoney(totalInterestEarned);
+    }
+  }
+
+  window.totalInterestEarned = totalInterestEarned;
+  if (window.allSavingsData && window.allSavingsData.length > 0) {
+    renderSavings(window.allSavingsData); // Re-render to update dividend column
   }
   
   // Calculate summary values for admin
