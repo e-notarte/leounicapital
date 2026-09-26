@@ -427,9 +427,9 @@ function renderCredit(data) {
       <div class="credit-status" style="${statusColor}">${escapeHtml(credit.status || "Billed")}</div>
       <div class="credit-details">
         <div class="credit-detail">Principal: <strong>₱${formatMoney(principal)}</strong></div>
-        <div class="credit-detail">${isPaid ? 'Interest Earned' : 'Expected Profit'}: <strong>₱${formatMoney(expectedProfit)}</strong></div>
+        ${currentRole === 'admin' ? `<div class="credit-detail">${isPaid ? 'Interest Earned' : 'Expected Profit'}: <strong>₱${formatMoney(expectedProfit)}</strong></div>` : ''}
         <div class="credit-detail">${isPaid ? 'Paid On' : 'Due'}: <strong>${dueDate ? formatDate(credit.due_date) : 'N/A'}</strong></div>
-        <div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>
+        ${penalty > 0 ? `<div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>` : ''}
       </div>
       ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
       ${approvalHtml}
@@ -512,6 +512,20 @@ window.openRequestLoanModal = function () {
   const availableLimit = baseLimit - (window.outstandingPrincipalAmount || 0);
   document.getElementById("availableCreditLimitDisplay").textContent = "₱" + formatMoney(availableLimit);
   
+  const exceededMessage = document.getElementById("exceededLimitMessage");
+  const businessLoanBtn = document.getElementById("requestBusinessLoanButton");
+  const requestLoanBtn = document.getElementById("requestLoanButton");
+
+  if (availableLimit <= 0) {
+    exceededMessage.style.display = "block";
+    businessLoanBtn.style.display = "block";
+    requestLoanBtn.style.display = "none";
+  } else {
+    exceededMessage.style.display = "none";
+    businessLoanBtn.style.display = "none";
+    requestLoanBtn.style.display = "block";
+  }
+
   document.getElementById("loanRequestAmount").focus();
 }
 
@@ -614,6 +628,16 @@ window.saveCredit = async function () {
 /* ==================================================
    REQUEST LOAN (User)
 ================================================== */
+window.requestBusinessLoan = async function () {
+  const amount = Number(document.getElementById("loanRequestAmount").value);
+  if (!amount || amount <= 0) return alert("Please enter a valid amount.");
+  
+  const proceed = confirm(`Would you like to proceed with this as a Business Loan? (Business Loans have a 14% monthly interest rate).`);
+  if (!proceed) return;
+
+  submitLoanRequest(amount, 'Requested (Business)');
+}
+
 window.requestLoan = async function () {
   const amount = Number(document.getElementById("loanRequestAmount").value);
   const baseLimit = window.totalSavingsAmount * 0.5;
@@ -628,7 +652,12 @@ window.requestLoan = async function () {
     status = 'Requested (Business)';
   }
 
-  const button = document.getElementById("requestLoanButton");
+  submitLoanRequest(amount, status);
+}
+
+async function submitLoanRequest(amount, status) {
+  const button = document.getElementById(status === 'Requested (Business)' && document.getElementById("requestBusinessLoanButton").style.display !== "none" ? "requestBusinessLoanButton" : "requestLoanButton");
+  const origText = button.textContent;
   button.disabled = true;
   button.textContent = "Submitting...";
 
@@ -653,7 +682,7 @@ window.requestLoan = async function () {
     alert(error.message || "Unable to request loan.");
   } finally {
     button.disabled = false;
-    button.textContent = "Submit Request";
+    button.textContent = origText;
   }
 }
 
