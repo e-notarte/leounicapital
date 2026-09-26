@@ -1289,3 +1289,88 @@ tbody tr:hover {
   }
 
 }
+
+/* ==================================================
+   AUTH SCREENS
+================================================== */
+.auth-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f7f5fb;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.auth-title {
+  font-size: 40px;
+  font-weight: 800;
+  position: absolute;
+  top: 10%;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 1px;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  gap: 50px;
+  padding: 20px;
+}
+
+.auth-graphic-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-graphic {
+  width: 100%;
+  max-width: 400px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.auth-card-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  width: 100%;
+  max-width: 350px;
+}
+
+@media (max-width: 768px) {
+  .auth-screen {
+    height: auto;
+    min-height: 100vh;
+    justify-content: flex-start;
+  }
+  
+  .auth-title {
+    position: static;
+    margin-top: 40px;
+    margin-bottom: 10px;
+  }
+  
+  .auth-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .auth-graphic {
+    max-width: 250px;
+  }
+}
