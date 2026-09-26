@@ -153,7 +153,10 @@ async function checkAuth() {
   
   if (session) {
     loggedInUser = session.user;
-    document.getElementById('userEmailDisplay').textContent = loggedInUser.email;
+    // Extract name from email (e.g. "emman@..." -> "Emman")
+    const emailPrefix = loggedInUser.email.split('@')[0];
+    const displayName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    document.getElementById('userEmailDisplay').textContent = displayName;
     showApp();
   } else {
     loggedInUser = null;
