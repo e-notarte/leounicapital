@@ -648,11 +648,11 @@ window.saveCredit = async function () {
 ================================================== */
 window.saveExpense = async function () {
   const expenseDate = document.getElementById("expenseDate").value;
-  const amountBorrowed = Number(document.getElementById("expenseAmountBorrowed").value);
-  const profitEarned = Number(document.getElementById("expenseProfitEarned").value);
+  const amountBorrowed = Number(document.getElementById("expenseAmountBorrowed").value) || 0;
+  const profitEarned = Number(document.getElementById("expenseProfitEarned").value) || 0;
 
   if (!expenseDate) return alert("Please enter the expense date.");
-  if (!amountBorrowed || amountBorrowed <= 0) return alert("Please enter a valid amount borrowed.");
+  if (amountBorrowed <= 0 && profitEarned <= 0) return alert("Please enter an amount borrowed or profit earned.");
 
   const button = document.getElementById("saveExpenseButton");
   button.disabled = true;
@@ -662,7 +662,7 @@ window.saveExpense = async function () {
     const insertData = { 
       expense_date: new Date(expenseDate).toISOString(), 
       amount_borrowed: amountBorrowed,
-      profit_earned: profitEarned || 0,
+      profit_earned: profitEarned,
       user_id: loggedInUser.id
     };
 
@@ -716,10 +716,23 @@ function renderExpenses(data) {
     const profitEarned = Number(expense.profit_earned) || 0;
     const date = expense.expense_date || expense.created_at;
 
+    let mainLabel = "Business Expense";
+    let mainValue = amountBorrowed;
+    let mainColor = "#6f58a3"; 
+
+    if (amountBorrowed === 0 && profitEarned > 0) {
+      mainLabel = "Profit Earned";
+      mainValue = profitEarned;
+      mainColor = "#10b981"; // Green
+    } else if (amountBorrowed > 0 && profitEarned > 0) {
+      mainLabel = "Expense & Profit";
+      mainValue = amountBorrowed;
+    }
+
     html += `<div class="credit-item">
       <div class="credit-item-top">
-        <div class="credit-name">Business Expense</div>
-        <div class="credit-amount" style="color: #6f58a3;">₱${formatMoney(amountBorrowed)}</div>
+        <div class="credit-name">${mainLabel}</div>
+        <div class="credit-amount" style="color: ${mainColor};">₱${formatMoney(mainValue)}</div>
       </div>
       <div class="credit-date">Date: ${formatDate(date)}</div>
       <div class="credit-details" style="margin-top: 10px;">
