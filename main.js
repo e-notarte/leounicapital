@@ -518,6 +518,7 @@ window.openExpenseModal = function () {
 window.closeExpenseModal = function () {
   document.getElementById("expenseModal").style.display = "none";
   document.getElementById("expenseDate").value = "";
+  document.getElementById("expenseReference").value = "";
   document.getElementById("expenseAmountBorrowed").value = "";
   document.getElementById("expenseProfitEarned").value = "";
 }
@@ -648,6 +649,7 @@ window.saveCredit = async function () {
 ================================================== */
 window.saveExpense = async function () {
   const expenseDate = document.getElementById("expenseDate").value;
+  const reference = document.getElementById("expenseReference").value.trim();
   const amountBorrowed = Number(document.getElementById("expenseAmountBorrowed").value) || 0;
   const profitEarned = Number(document.getElementById("expenseProfitEarned").value) || 0;
 
@@ -661,6 +663,7 @@ window.saveExpense = async function () {
   try {
     const insertData = { 
       expense_date: new Date(expenseDate).toISOString(), 
+      reference: reference || null,
       amount_borrowed: amountBorrowed,
       profit_earned: profitEarned,
       user_id: loggedInUser.id
@@ -675,10 +678,10 @@ window.saveExpense = async function () {
     closeExpenseModal();
     loadExpenses(); // Refresh
   } catch (error) {
-    alert(error.message || "Unable to save expense.");
+    alert(error.message || "Unable to save record.");
   } finally {
     button.disabled = false;
-    button.textContent = "Save Expense";
+    button.textContent = "Save Record";
   }
 }
 
@@ -706,7 +709,7 @@ function renderExpenses(data) {
   const list = document.getElementById("expenseList");
 
   if (!Array.isArray(data) || data.length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>No business expenses</h3><p>No business expense records found.</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>No cashflow records</h3><p>No cashflow records found.</p></div>`;
     return;
   }
 
@@ -715,18 +718,23 @@ function renderExpenses(data) {
     const amountBorrowed = Number(expense.amount_borrowed) || 0;
     const profitEarned = Number(expense.profit_earned) || 0;
     const date = expense.expense_date || expense.created_at;
+    const ref = expense.reference ? escapeHtml(expense.reference) : "";
 
-    let mainLabel = "Business Expense";
+    let mainLabel = "Credit (Capital)";
     let mainValue = amountBorrowed;
     let mainColor = "#6f58a3"; 
 
     if (amountBorrowed === 0 && profitEarned > 0) {
-      mainLabel = "Profit Earned";
+      mainLabel = "Debit (Sales)";
       mainValue = profitEarned;
       mainColor = "#10b981"; // Green
     } else if (amountBorrowed > 0 && profitEarned > 0) {
-      mainLabel = "Expense & Profit";
+      mainLabel = "Credit & Debit";
       mainValue = amountBorrowed;
+    }
+    
+    if (ref) {
+      mainLabel += ` <span style="font-size: 10px; background: #eef2f9; color: #5b478f; padding: 2px 6px; border-radius: 4px; margin-left: 5px;">${ref}</span>`;
     }
 
     html += `<div class="credit-item">
@@ -736,8 +744,8 @@ function renderExpenses(data) {
       </div>
       <div class="credit-date">Date: ${formatDate(date)}</div>
       <div class="credit-details" style="margin-top: 10px;">
-        <div class="credit-detail">Amount Borrowed: <strong>₱${formatMoney(amountBorrowed)}</strong></div>
-        <div class="credit-detail">Profit Earned: <strong>₱${formatMoney(profitEarned)}</strong></div>
+        <div class="credit-detail">Credit: <strong>₱${formatMoney(amountBorrowed)}</strong></div>
+        <div class="credit-detail">Debit: <strong>₱${formatMoney(profitEarned)}</strong></div>
       </div>
     </div>`;
   });
