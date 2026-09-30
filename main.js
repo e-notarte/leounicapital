@@ -36,6 +36,7 @@ async function applyRoleUI() {
   const adminCreditTotals = document.getElementById('adminCreditTotals');
   const adminCreditBreakdown = document.getElementById('adminCreditBreakdown');
   const creditPanelSubtitle = document.getElementById('creditPanelSubtitle');
+  const adminExpensePanel = document.getElementById('adminExpensePanel');
   
   // Everyone sees the credit panel now, but with different content
   if (adminCreditPanel) adminCreditPanel.style.display = 'block';
@@ -50,6 +51,7 @@ async function applyRoleUI() {
     if (adminCreditTotals) adminCreditTotals.style.display = 'flex';
     if (adminCreditBreakdown) adminCreditBreakdown.style.display = 'block';
     if (creditPanelSubtitle) creditPanelSubtitle.textContent = 'Billed credits only';
+    if (adminExpensePanel) adminExpensePanel.style.display = 'block';
   } else {
     if (adminCashCard) adminCashCard.style.display = 'none';
     if (adminProfitCard) adminProfitCard.style.display = 'none';
@@ -60,6 +62,7 @@ async function applyRoleUI() {
     if (adminCreditTotals) adminCreditTotals.style.display = 'none';
     if (adminCreditBreakdown) adminCreditBreakdown.style.display = 'none';
     if (creditPanelSubtitle) creditPanelSubtitle.textContent = 'Your credit history';
+    if (adminExpensePanel) adminExpensePanel.style.display = 'none';
   }
 }
 
@@ -176,6 +179,9 @@ async function showApp() {
   await applyRoleUI();
   loadSavings();
   loadCredit();
+  if (currentRole === 'admin') {
+    loadExpenses();
+  }
 }
 
 /* ==================================================
@@ -504,6 +510,18 @@ window.closeCreditModal = function () {
   document.getElementById("creditDueDate").value = "";
 }
 
+window.openExpenseModal = function () {
+  document.getElementById("expenseModal").style.display = "flex";
+  document.getElementById("expenseDate").focus();
+}
+
+window.closeExpenseModal = function () {
+  document.getElementById("expenseModal").style.display = "none";
+  document.getElementById("expenseDate").value = "";
+  document.getElementById("expenseAmountBorrowed").value = "";
+  document.getElementById("expenseProfitEarned").value = "";
+}
+
 window.openRequestLoanModal = function () {
   document.getElementById("requestLoanModal").style.display = "flex";
   
@@ -623,6 +641,95 @@ window.saveCredit = async function () {
     button.disabled = false;
     button.textContent = "Save Credit";
   }
+}
+
+/* ==================================================
+   SAVE EXPENSE
+================================================== */
+window.saveExpense = async function () {
+  const expenseDate = document.getElementById("expenseDate").value;
+  const amountBorrowed = Number(document.getElementById("expenseAmountBorrowed").value);
+  const profitEarned = Number(document.getElementById("expenseProfitEarned").value);
+
+  if (!expenseDate) return alert("Please enter the expense date.");
+  if (!amountBorrowed || amountBorrowed <= 0) return alert("Please enter a valid amount borrowed.");
+
+  const button = document.getElementById("saveExpenseButton");
+  button.disabled = true;
+  button.textContent = "Saving...";
+
+  try {
+    const insertData = { 
+      expense_date: new Date(expenseDate).toISOString(), 
+      amount_borrowed: amountBorrowed,
+      profit_earned: profitEarned || 0,
+      user_id: loggedInUser.id
+    };
+
+    const { data, error } = await supabase
+      .from('business_expenses')
+      .insert([insertData]);
+
+    if (error) throw error;
+    
+    closeExpenseModal();
+    loadExpenses(); // Refresh
+  } catch (error) {
+    alert(error.message || "Unable to save expense.");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Expense";
+  }
+}
+
+/* ==================================================
+   LOAD EXPENSES
+================================================== */
+async function loadExpenses() {
+  const list = document.getElementById("expenseList");
+  list.innerHTML = `<div class="loading"><div class="spinner"></div>Loading business expenses...</div>`;
+
+  try {
+    const { data, error } = await supabase
+      .from('business_expenses')
+      .select('*')
+      .order('expense_date', { ascending: false });
+      
+    if (error) throw error;
+    renderExpenses(data);
+  } catch (error) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Unable to load expenses</h3><p>${escapeHtml(error.message)}</p></div>`;
+  }
+}
+
+function renderExpenses(data) {
+  const list = document.getElementById("expenseList");
+
+  if (!Array.isArray(data) || data.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><h3>No business expenses</h3><p>No business expense records found.</p></div>`;
+    return;
+  }
+
+  let html = "";
+  data.forEach(function (expense) {
+    const amountBorrowed = Number(expense.amount_borrowed) || 0;
+    const profitEarned = Number(expense.profit_earned) || 0;
+    const date = expense.expense_date || expense.created_at;
+
+    html += `<div class="credit-item">
+      <div class="credit-item-top">
+        <div class="credit-name">Business Expense</div>
+        <div class="credit-amount" style="color: #6f58a3;">₱${formatMoney(amountBorrowed)}</div>
+      </div>
+      <div class="credit-date">Date: ${formatDate(date)}</div>
+      <div class="credit-details" style="margin-top: 10px;">
+        <div class="credit-detail">Amount Borrowed: <strong>₱${formatMoney(amountBorrowed)}</strong></div>
+        <div class="credit-detail">Profit Earned: <strong>₱${formatMoney(profitEarned)}</strong></div>
+      </div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
 }
 
 /* ==================================================
