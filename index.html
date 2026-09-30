@@ -235,11 +235,11 @@
           <div class="content-card credit-panel" id="adminExpensePanel" style="margin-top: 20px;">
             <div class="content-header">
               <div>
-                <div class="content-title">Business Expense</div>
-                <div class="content-subtitle">Track business expenses & profits</div>
+                <div class="content-title">Cashflow</div>
+                <div class="content-subtitle">Track Credit (Capital) & Debit (Sales)</div>
               </div>
               <div>
-                <button class="btn btn-primary" id="addExpenseBtn" onclick="openExpenseModal()">+ Add Expense</button>
+                <button class="btn btn-primary" id="addExpenseBtn" onclick="openExpenseModal()">+ Add Record</button>
               </div>
             </div>
 
@@ -588,7 +588,7 @@
             justify-content: space-between;
             align-items: center;
           ">
-          <div style="font-weight: 600; color: #5b478f;">Add Business Expense</div>
+          <div style="font-weight: 600; color: #5b478f;">Add Cashflow Record</div>
           <button onclick="closeExpenseModal()" style="
               background: none;
               border: none;
@@ -607,9 +607,29 @@
                 color: #777187;
                 margin-bottom: 8px;
               ">
-              Expense Date
+              Date
             </label>
             <input type="date" id="expenseDate" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+          
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Reference (e.g. Lue-0001)
+            </label>
+            <input type="text" id="expenseReference" placeholder="Lue-0001" style="
                 width: 100%;
                 padding: 12px;
                 border: 1px solid #e1dceb;
@@ -627,7 +647,7 @@
                 color: #777187;
                 margin-bottom: 8px;
               ">
-              Amount Borrowed (₱)
+              Credit (Capital/Expense) (₱)
             </label>
             <input type="number" id="expenseAmountBorrowed" placeholder="0.00" style="
                 width: 100%;
@@ -647,7 +667,7 @@
                 color: #777187;
                 margin-bottom: 8px;
               ">
-              Profit Earned (₱)
+              Debit (Sales/Inflow) (₱)
             </label>
             <input type="number" id="expenseProfitEarned" placeholder="0.00" style="
                 width: 100%;
@@ -661,7 +681,7 @@
 
           <button id="saveExpenseButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
             onclick="saveExpense()">
-            Save Expense
+            Save Record
           </button>
         </div>
       </div>
