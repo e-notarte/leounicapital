@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leo Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/assets/logo-CLb_BRGL.jpg" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" crossorigin src="/assets/index-CvFYpDA6.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C8yBBdxj.css">
+</head>
+
+<body>
+  <!-- Login Screen (Initially Hidden) -->
+  <div id="loginScreen" class="auth-screen">
+    <h1 class="auth-title">LEO Online</h1>
+
+    <div class="auth-container">
+      <!-- Left Graphic -->
+      <div class="auth-graphic-container">
+        <img src="/assets/hero_graphic-CCIimLYL.jpg" alt="Hero Graphic" class="auth-graphic" />
+      </div>
+
+      <!-- Login Card -->
+      <div class="auth-card-wrapper">
+        <div class="auth-card">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="/assets/logo-CLb_BRGL.jpg" alt="Leo Logo"
+              style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
+          </div>
+          <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: 700;">Leo
+            Dashboard Login</h2>
+          <input type="email" id="username" placeholder="admin"
+            style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <input type="password" id="password" placeholder="••••••••"
+            style="width: 100%; padding: 12px 15px; margin-bottom: 20px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <button id="loginButton"
+            style="width: 100%; padding: 12px; font-size: 14px; background: #6f58a3; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: background 0.3s;">Login</button>
+          <div style="text-align: center; margin-top: 15px; font-size: 11px; color: #777187; font-weight: 500;">
+            New user? <a href="#" id="showRegisterLink"
+              style="color: #5b478f; font-weight: 700; text-decoration: none;">Register</a>
+          </div>
+          <div id="loginError" style="color: red; font-size: 12px; margin-top: 10px; text-align: center;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Register Screen (Initially Hidden) -->
+  <div id="registerScreen" class="auth-screen" style="display: none;">
+    <h1 class="auth-title">LEO Online</h1>
+
+    <div class="auth-container">
+      <!-- Left Graphic -->
+      <div class="auth-graphic-container">
+        <img src="/assets/hero_graphic-CCIimLYL.jpg" alt="Hero Graphic" class="auth-graphic" />
+      </div>
+
+      <!-- Register Card -->
+      <div class="auth-card-wrapper">
+        <div class="auth-card">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <img src="/assets/logo-CLb_BRGL.jpg" alt="Leo Logo"
+              style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.1);" />
+          </div>
+          <h2 style="color: #5b478f; margin-bottom: 20px; text-align: center; font-size: 18px; font-weight: 700;">Create
+            Account</h2>
+          <input type="email" id="regUsername" placeholder="Email"
+            style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <input type="password" id="regPassword" placeholder="Password"
+            style="width: 100%; padding: 12px 15px; margin-bottom: 20px; border: none; background: #eef2f9; border-radius: 6px; font-size: 14px; outline: none; font-weight: 500;" />
+          <button id="registerButton"
+            style="width: 100%; padding: 12px; font-size: 14px; background: #6f58a3; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: background 0.3s;">Register</button>
+          <div style="text-align: center; margin-top: 15px; font-size: 11px; color: #777187; font-weight: 500;">
+            Already have an account? <a href="#" id="showLoginLink"
+              style="color: #5b478f; font-weight: 700; text-decoration: none;">Login</a>
+          </div>
+          <div id="registerMessage" style="font-size: 12px; margin-top: 10px; text-align: center;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app" style="display: none; position: relative;">
+
+    <!-- Watermark Background -->
+    <div
+      style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('/assets/logo-CLb_BRGL.jpg'); background-repeat: repeat; background-size: 150px; opacity: 0.04; pointer-events: none; z-index: 0;">
+    </div>
+
+    <div class="header" style="position: relative; z-index: 10;">
+      <div class="brand">
+        <img src="/assets/logo-CLb_BRGL.jpg" class="brand-icon" style="padding: 0; object-fit: cover;" alt="Logo" />
+        <div class="brand-text">
+          <h1>Leo</h1>
+          <span>Deposit &amp; Credit Monitoring</span>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <div id="userEmailDisplay" style="font-size: 13px; opacity: 0.9; font-weight: 500;"></div>
+        <button id="logoutButton" class="btn" style="background: rgba(255,255,255,0.15); color: white;">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container" style="position: relative; z-index: 1;">
+      <div class="dashboard-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="dashboard-main">
+
+          <div class="page-title">
+            <h2>Savings</h2>
+            <p>Monitor and manage savings deposits</p>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="summary-icon">₱</div>
+              <div class="summary-label">Total Savings</div>
+              <div class="summary-value" id="totalSavings">₱0.00</div>
+            </div>
+
+            <div class="summary-card">
+              <div class="summary-icon">%</div>
+              <div class="summary-label">Interest Earned</div>
+              <div class="summary-value" id="interestEarned">₱0.00</div>
+            </div>
+
+            <div class="summary-card cash-card" id="adminCashCard">
+              <div class="summary-icon">💵</div>
+              <div class="summary-label">Cash on Hand</div>
+              <div class="summary-value" id="cashOnHand">₱0.00</div>
+              <div class="cash-description">Savings less outstanding principal</div>
+            </div>
+
+            <div class="summary-card" id="creditLimitCard">
+              <div class="summary-icon" style="background: #eef2ff;">
+                <span style="color: #6366f1;">💳</span>
+              </div>
+              <div class="summary-label">Credit Limit</div>
+              <div class="summary-value" id="creditLimit">₱0.00</div>
+              <div class="summary-subtext" style="font-size: 9px; color: #9a93a5; margin-top: 5px;">50% of Total Savings
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="content-header">
+              <div>
+                <div class="content-title">Deposit Records</div>
+                <div class="content-subtitle">Savings transaction history</div>
+              </div>
+              <button class="btn btn-primary" id="addDepositBtn" onclick="openDepositModal()">+ Add Deposit</button>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Deposit Date</th>
+                    <th>Depositor</th>
+                    <th>Amount</th>
+                    <th>Interest</th>
+                  </tr>
+                </thead>
+                <tbody id="savingsTable">
+                  <!-- Load dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+        <div class="dashboard-side">
+          <div class="content-card credit-panel" id="adminCreditPanel">
+            <div class="content-header">
+              <div>
+                <div class="content-title">Outstanding Credit</div>
+                <div class="content-subtitle" id="creditPanelSubtitle">Billed credits only</div>
+              </div>
+              <div>
+                <button class="btn btn-primary" id="addCreditBtn" onclick="openCreditModal()">+ Add Credit</button>
+                <button class="btn btn-primary" id="requestLoanBtn" onclick="openRequestLoanModal()"
+                  style="display: none;">Request Loan</button>
+              </div>
+            </div>
+
+            <div class="credit-total" id="adminCreditTotals">
+              <div class="credit-total-label">Total Outstanding</div>
+              <div class="credit-total-value" id="totalCredit">₱0.00</div>
+            </div>
+
+            <div class="credit-breakdown" id="adminCreditBreakdown">
+              <div class="breakdown-row">
+                <span>Principal</span>
+                <span class="breakdown-value" id="creditPrincipal">₱0.00</span>
+              </div>
+              <div class="breakdown-row">
+                <span>Expected Profit</span>
+                <span class="breakdown-value" id="creditInterest">₱0.00</span>
+              </div>
+              <div class="breakdown-row">
+                <span>Late Penalty</span>
+                <span class="breakdown-value" id="creditPenalty">₱0.00</span>
+              </div>
+            </div>
+
+            <div class="credit-list" id="creditList">
+              <!-- Load dynamically -->
+            </div>
+          </div>
+
+          <div class="content-card credit-panel" id="historyCreditPanel" style="margin-top: 20px;">
+            <div class="content-header">
+              <div>
+                <div class="content-title">Credit History</div>
+                <div class="content-subtitle">Fully paid credits</div>
+              </div>
+            </div>
+            <div class="credit-list" id="historyCreditList">
+              <!-- Load dynamically -->
+            </div>
+          </div>
+
+          <div class="content-card credit-panel" id="adminExpensePanel" style="margin-top: 20px;">
+            <div class="content-header">
+              <div>
+                <div class="content-title">Cashflow</div>
+                <div class="content-subtitle">Track Credit (Capital) & Debit (Sales)</div>
+              </div>
+              <div>
+                <button class="btn btn-primary" id="addExpenseBtn" onclick="openExpenseModal()">+ Add Record</button>
+              </div>
+            </div>
+
+            <div class="credit-list" id="expenseList">
+              <!-- Load dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- DEPOSIT MODAL -->
+    <div id="depositModal" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      ">
+      <div style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        ">
+        <div style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+          <div style="font-weight: 600; color: #5b478f;">Add Deposit</div>
+          <button onclick="closeDepositModal()" style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            ">×</button>
+        </div>
+
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Depositor Name
+            </label>
+            <input type="text" id="depositor" placeholder="e.g. Emman" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Amount (₱)
+            </label>
+            <input type="number" id="amount" placeholder="0.00" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Deposit Date (Optional)
+            </label>
+            <input type="date" id="depositDate" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <button id="saveDepositButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveDeposit()">
+            Save Deposit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREDIT MODAL -->
+    <div id="creditModal" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      ">
+      <div style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        ">
+        <div style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+          <div style="font-weight: 600; color: #5b478f;">Add Credit</div>
+          <button onclick="closeCreditModal()" style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            ">×</button>
+        </div>
+
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Borrower Name
+            </label>
+            <input type="text" id="borrowerName" placeholder="e.g. Emman" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Principal Amount (₱)
+            </label>
+            <input type="number" id="creditAmount" placeholder="0.00" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Date Borrowed (Optional)
+            </label>
+            <input type="date" id="creditDateBorrowed" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Due Date
+            </label>
+            <input type="date" id="creditDueDate" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <button id="saveCreditButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveCredit()">
+            Save Credit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST LOAN MODAL -->
+    <div id="requestLoanModal" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      ">
+      <div style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        ">
+        <div style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+          <div style="font-weight: 600; color: #5b478f;">Request Loan</div>
+          <button onclick="closeRequestLoanModal()" style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            ">×</button>
+        </div>
+
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Loan Amount (₱)
+            </label>
+            <input type="number" id="loanRequestAmount" placeholder="0.00" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+            <div style="font-size: 11px; color: #777187; margin-top: 5px;">
+              Your available credit limit is: <strong id="availableCreditLimitDisplay">₱0.00</strong>
+            </div>
+          </div>
+
+          <div id="exceededLimitMessage"
+            style="display: none; text-align: center; margin-bottom: 15px; color: #d9534f; font-size: 13px; font-weight: 600;">
+            Pay First your outstanding balance
+          </div>
+
+          <button id="requestLoanButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="requestLoan()">
+            Submit Request
+          </button>
+
+          <button id="requestBusinessLoanButton" class="btn btn-secondary"
+            style="width: 100%; padding: 14px; font-size: 13px; margin-top: 10px; display: none; background: #eef2f9; color: #5b478f; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;"
+            onclick="requestBusinessLoan()">
+            Proceed to Business Loan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPENSE MODAL -->
+    <div id="expenseModal" style="
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(41,36,58,0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+      ">
+      <div style="
+          background: white;
+          width: 100%;
+          max-width: 380px;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        ">
+        <div style="
+            padding: 20px;
+            border-bottom: 1px solid #f0edf5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          ">
+          <div style="font-weight: 600; color: #5b478f;">Add Cashflow Record</div>
+          <button onclick="closeExpenseModal()" style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              color: #a49eb5;
+              cursor: pointer;
+            ">×</button>
+        </div>
+
+        <div style="padding: 24px 20px;">
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Date
+            </label>
+            <input type="date" id="expenseDate" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Reference (e.g. Lue-0001)
+            </label>
+            <input type="text" id="expenseReference" placeholder="Lue-0001" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 18px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Credit (Capital/Expense) (₱)
+            </label>
+            <input type="number" id="expenseAmountBorrowed" placeholder="0.00" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <div style="margin-bottom: 24px;">
+            <label style="
+                display: block;
+                font-size: 11px;
+                font-weight: 500;
+                color: #777187;
+                margin-bottom: 8px;
+              ">
+              Debit (Sales/Inflow) (₱)
+            </label>
+            <input type="number" id="expenseProfitEarned" placeholder="0.00" style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e1dceb;
+                border-radius: 9px;
+                font-family: inherit;
+                font-size: 12px;
+              ">
+          </div>
+
+          <button id="saveExpenseButton" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 13px;"
+            onclick="saveExpense()">
+            Save Record
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
