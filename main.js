@@ -403,15 +403,16 @@ function renderCredit(data) {
 
     const total = principal + expectedProfit + penalty;
 
+    const isPaid = credit.status === 'Paid' || credit.status === 'Paid (Business)';
+
     // Only add to outstanding totals if not paid
-    if (credit.status !== 'Paid') {
+    if (!isPaid) {
       principalTotal += principal;
       interestTotal += expectedProfit;
       penaltyTotal += penalty;
       outstandingTotal += total;
     }
 
-    const isPaid = credit.status === 'Paid';
     const statusColor = isPaid ? 'color: #10b981; font-weight: 600;' : '';
 
       let approvalHtml = '';
@@ -438,6 +439,12 @@ function renderCredit(data) {
         ${penalty > 0 ? `<div class="credit-detail">Penalty: <strong>₱${formatMoney(penalty)}</strong></div>` : ''}
       </div>
       ${lateDays > 0 ? `<div class="credit-status overdue" style="color: red; margin-top: 5px;">${lateDays} day(s) overdue</div>` : ""}
+      ${currentRole === 'admin' && !isPaid && (credit.status === 'Billed' || credit.status === 'Billed (Business)') ? `
+        <button onclick="markCreditPaid('${credit.id}', ${expectedProfit}, ${penalty}, '${credit.status}')"
+          class="btn btn-primary" style="width: 100%; margin-top: 12px; padding: 8px 10px; font-size: 11px;">
+          Mark as Paid
+        </button>
+      ` : ""}
       ${approvalHtml}
     </div>`;
 
@@ -858,6 +865,31 @@ window.rejectLoan = async function(id) {
     loadCredit();
   } catch(error) {
     alert(error.message || "Unable to reject loan.");
+  }
+}
+
+window.markCreditPaid = async function(id, expectedProfit, latePenalty, currentStatus) {
+  if (currentRole !== 'admin') return;
+
+  const total = Number(expectedProfit) + Number(latePenalty);
+  if (!confirm(`Record this credit as paid for ₱${formatMoney(total)} interest and penalties?`)) return;
+
+  try {
+    const paidStatus = currentStatus === 'Billed (Business)' ? 'Paid (Business)' : 'Paid';
+    const { error } = await supabase
+      .from('credits')
+      .update({
+        status: paidStatus,
+        expected_profit: Number(expectedProfit) || 0,
+        late_penalty: Number(latePenalty) || 0
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    await loadCredit();
+  } catch (error) {
+    alert(error.message || "Unable to record credit payment.");
   }
 }
 
